@@ -4,4 +4,6 @@
     <color name="greenAccent">#00C853</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="blue">#2196F3</color> <!-- exemple de bleu -->
+    <color name="nav_item_color">#FF6200EE</color> <!-- pour ton BottomNavigationView -->
 </resources>

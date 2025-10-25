@@ -1,13 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dashboard_coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.dashboard.DashboardActivity">
 
-    <TextView
+    <!-- Contenu principal -->
+    <FrameLayout
+        android:id="@+id/dashboard_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="72dp"> <!-- marge pour que le FAB et la navbar ne se superposent pas -->
+    </FrameLayout>
+
+    <!-- Floating Action Button central -->
+
+    <!-- Barre de navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="83dp"
+        android:layout_gravity="bottom"
+        app:backgroundTint="@color/white"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bienvenue sur le Dashboard !"
-        android:textSize="24sp"/>
-</LinearLayout>
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="36dp"
+        android:backgroundTint="@color/purplePrimary"
+        android:src="@drawable/ic_add"
+        app:elevation="8dp"
+        app:layout_anchor="@+id/bottom_navigation"
+        app:layout_anchorGravity="top|center" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

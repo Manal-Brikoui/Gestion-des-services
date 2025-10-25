@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/service_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:layout_marginEnd="16dp"
+            tools:src="@tools:sample/avatars"
+            android:contentDescription="Icône du service" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/service_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="COIFFURE"
+                android:textSize="12sp"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/service_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Coupe de Cheveux"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/details_arrow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_arrow_right" android:contentDescription="Détails"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
