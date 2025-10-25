@@ -13,7 +13,7 @@
         <!-- ✅ Activity principale (écran de connexion) -->
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true">   <!-- OBLIGATOIRE pour Android 12+ -->
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -23,6 +23,11 @@
         <!-- Autre activité (inscription) -->
         <activity
             android:name=".ui.register.RegisterActivity"
+            android:exported="false" />
+
+        <!-- Dashboard après login -->
+        <activity
+            android:name=".ui.dashboard.DashboardActivity"
             android:exported="false" />
     </application>
 

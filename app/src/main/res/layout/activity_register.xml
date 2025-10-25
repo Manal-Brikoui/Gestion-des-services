@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F5F5F5"
     tools:context=".ui.register.RegisterActivity">
 
     <LinearLayout
@@ -10,15 +11,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp"
-        android:gravity="center">
+        android:gravity="center_horizontal">
 
         <!-- Logo -->
         <ImageView
             android:id="@+id/imgLogoRegister"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:src="@drawable/ic_launcher_foreground"
-            android:contentDescription="Logo" />
+            android:src="@drawable/logo"
+            android:contentDescription="Logo"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Titre -->
         <TextView
@@ -26,9 +29,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Créer un compte"
-            android:textSize="20sp"
-            android:layout_marginTop="12dp"
-            android:textColor="@android:color/black" />
+            android:textSize="24sp"
+            android:textColor="#6A1B9A"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"
+            android:textAlignment="center"/>
 
         <!-- Nom -->
         <EditText
@@ -36,7 +41,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nom complet"
-            android:layout_marginTop="20dp" />
+            android:background="@drawable/edt_rounded"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
 
         <!-- Email -->
         <EditText
@@ -45,7 +52,9 @@
             android:layout_height="wrap_content"
             android:hint="Email"
             android:inputType="textEmailAddress"
-            android:layout_marginTop="12dp" />
+            android:background="@drawable/edt_rounded"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
 
         <!-- Mot de passe -->
         <EditText
@@ -54,7 +63,9 @@
             android:layout_height="wrap_content"
             android:hint="Mot de passe"
             android:inputType="textPassword"
-            android:layout_marginTop="12dp" />
+            android:background="@drawable/edt_rounded"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp"/>
 
         <!-- Bouton d'inscription -->
         <Button
@@ -62,7 +73,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Créer un compte"
-            android:layout_marginTop="20dp" />
+            android:background="@drawable/btn_rounded_violet"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Bouton retour connexion -->
         <Button
@@ -70,7 +83,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Déjà un compte ? Se connecter"
-            android:layout_marginTop="8dp" />
+            android:background="@drawable/btn_rounded_green"
+            android:textColor="@android:color/white"/>
 
     </LinearLayout>
 </ScrollView>
