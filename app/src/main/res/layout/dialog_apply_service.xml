@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_dialog_rounded"
+        android:padding="20dp">
+
+        <!-- Bouton Fermer -->
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            android:src="@drawable/ic_close"
+            android:contentDescription="Fermer"
+            android:padding="4dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Formulaire de candidature"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#000"
+            android:gravity="center"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/editNom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nom"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="10dp" />
+
+        <EditText
+            android:id="@+id/editPrenom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Prénom"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="10dp" />
+
+        <EditText
+            android:id="@+id/editEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="10dp" />
+
+        <EditText
+            android:id="@+id/editPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Téléphone"
+            android:inputType="phone"
+            android:layout_marginBottom="10dp" />
+
+        <EditText
+            android:id="@+id/editDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date"
+            android:focusable="false"
+            android:clickable="true"
+            android:layout_marginBottom="10dp" />
+
+        <EditText
+            android:id="@+id/editHeure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Heure"
+            android:focusable="false"
+            android:clickable="true"
+            android:layout_marginBottom="10dp" />
+
+        <EditText
+            android:id="@+id/editLocalisation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Localisation"
+            android:inputType="text"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnPostuler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Postuler"
+            android:textAllCaps="false"
+            android:backgroundTint="#6200EE"
+            android:textColor="#FFFFFF"
+            android:padding="10dp" />
+
+    </LinearLayout>
+</ScrollView>
