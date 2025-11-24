@@ -8,8 +8,8 @@ public class Service implements Serializable {
     private String category;
     private String title;
     private String description;
-    private int imageResId;       // Pour les images par défaut
-    private String imageUri;      // Pour les images choisies par l’utilisateur
+    private int imageResId;       // Pour images par défaut
+    private String imageUri;      // Pour images choisies par l’utilisateur
     private String location;
     private String price;
     private String moreDetails;

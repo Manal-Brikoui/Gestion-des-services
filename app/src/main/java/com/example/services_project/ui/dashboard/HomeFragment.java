@@ -1,103 +1,151 @@
 package com.example.services_project.ui.dashboard;
+
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.services_project.R;
 import com.example.services_project.model.Service;
 import com.example.services_project.ui.adapter.ServiceAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
 
     private HomeFragmentViewModel viewModel;
-    private RecyclerView recyclerView;
     private ServiceAdapter adapter;
+
     private EditText searchBar;
     private ImageView filterIcon;
 
-    private List<Service> allServices = new ArrayList<>();
+    private final List<Service> allServices = new ArrayList<>();
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
+
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        recyclerView = root.findViewById(R.id.recyclerViewServices);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        RecyclerView recyclerView = root.findViewById(R.id.recyclerViewServices);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         searchBar = root.findViewById(R.id.searchBar);
         filterIcon = root.findViewById(R.id.filterIcon);
 
+        // ----------------------------
+        // INIT ADAPTER (vide)
+        // ----------------------------
+        adapter = new ServiceAdapter(requireContext(), new ArrayList<>());
+        recyclerView.setAdapter(adapter);
+
+        // ----------------------------
+        // INIT VIEWMODEL
+        // ----------------------------
         viewModel = new ViewModelProvider(this).get(HomeFragmentViewModel.class);
 
-        // Charger les services depuis la base
+        // ----------------------------
+        // OBSERVER DATABASE
+        // ----------------------------
         viewModel.getServices().observe(getViewLifecycleOwner(), services -> {
+            if (services == null) return;
+
             allServices.clear();
             allServices.addAll(services);
-            adapter = new ServiceAdapter(requireContext(), allServices);
-            recyclerView.setAdapter(adapter);
+
+            adapter.updateList(allServices);
         });
 
-        //  Recherche par mot-clé
-        searchBar.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        // ----------------------------
+        // BARRE DE RECHERCHE
+        // ----------------------------
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterServicesByText(s.toString());
+                filterByText(s.toString());
             }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {}
         });
 
-        // Filtrage par catégorie
+        // ----------------------------
+        // FILTRE PAR CATÉGORIE
+        // ----------------------------
         filterIcon.setOnClickListener(v -> showFilterDialog());
 
         return root;
     }
 
-    //  Filtrer par texte
-    private void filterServicesByText(String query) {
-        List<Service> filteredList = new ArrayList<>();
+    // -----------------------------------------------------
+    // 🔍 FILTRAGE PAR MOT-CLÉ
+    // -----------------------------------------------------
+    private void filterByText(String query) {
+        if (query == null) query = "";
+
+        String searchLower = query.toLowerCase();
+
+        List<Service> filtered = new ArrayList<>();
+
         for (Service s : allServices) {
-            if (s.getTitle().toLowerCase().contains(query.toLowerCase())
-                    || s.getCategory().toLowerCase().contains(query.toLowerCase())
-                    || s.getDescription().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(s);
+            if (s.getTitle().toLowerCase().contains(searchLower) ||
+                    s.getCategory().toLowerCase().contains(searchLower) ||
+                    s.getDescription().toLowerCase().contains(searchLower)) {
+
+                filtered.add(s);
             }
         }
-        adapter.updateList(filteredList);
+
+        adapter.updateList(filtered);
     }
 
-    //  Afficher la boîte de dialogue pour choisir une catégorie
+    // -----------------------------------------------------
+    // 🔍 FILTRAGE PAR CATÉGORIE
+    // -----------------------------------------------------
     private void showFilterDialog() {
-        String[] categories = {"TOUS", "COIFFURE", "PLOMBERIE", "MASSAGE", "ÉLECTRICIEN", "PÉDIATRIE","INFORMATIQUE","DESIGN","CUISINE"};
+
+        final String[] categories = {
+                "TOUS", "COIFFURE", "PLOMBERIE", "MASSAGE",
+                "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE",
+                "DESIGN", "CUISINE"
+        };
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Filtrer par catégorie")
-                .setItems(categories, (dialog, which) -> {
-                    String selectedCategory = categories[which];
-                    if (selectedCategory.equals("TOUS")) {
+                .setItems(categories, (dialog, index) -> {
+
+                    String selected = categories[index];
+
+                    if (selected.equals("TOUS")) {
                         adapter.updateList(allServices);
-                    } else {
-                        List<Service> filtered = new ArrayList<>();
-                        for (Service s : allServices) {
-                            if (s.getCategory().equalsIgnoreCase(selectedCategory)) {
-                                filtered.add(s);
-                            }
-                        }
-                        adapter.updateList(filtered);
+                        return;
                     }
+
+                    List<Service> filtered = new ArrayList<>();
+                    for (Service s : allServices) {
+                        if (s.getCategory().equalsIgnoreCase(selected)) {
+                            filtered.add(s);
+                        }
+                    }
+
+                    adapter.updateList(filtered);
                 })
                 .show();
     }

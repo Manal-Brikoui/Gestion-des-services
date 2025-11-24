@@ -25,6 +25,10 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.services_project.R;
 import com.example.services_project.model.Service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
 public class AddFragment extends Fragment {
 
     private EditText edtTitle, edtDescription, edtLocation, edtPrice, edtMoreDetails;
@@ -46,7 +50,7 @@ public class AddFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(HomeFragmentViewModel.class);
 
-        // Initialiser les champs
+        // Initialisation UI
         edtTitle = root.findViewById(R.id.edtTitle);
         edtDescription = root.findViewById(R.id.edtDescription);
         edtLocation = root.findViewById(R.id.edtLocation);
@@ -56,13 +60,13 @@ public class AddFragment extends Fragment {
         btnAddService = root.findViewById(R.id.btnAddService);
         imgService = root.findViewById(R.id.imgService);
 
-        // Spinner catégories
+        // Spinner
         String[] categories = {"COIFFURE", "PLOMBERIE", "MASSAGE", "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE", "DESIGN", "CUISINE"};
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, categories);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterSpinner);
 
-        // Launcher pour la galerie
+        // Galerie Launcher
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -98,8 +102,15 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        int imageResId = selectedImageUri == null ? R.drawable.ic_haircut : 0;
-        String imageUriStr = selectedImageUri != null ? selectedImageUri.toString() : null;
+        // --- SAUVEGARDE LOCALE DE L’IMAGE ---
+        String localPath = null;
+
+        if (selectedImageUri != null) {
+            localPath = saveImageToInternalStorage(selectedImageUri);
+        }
+
+        // fallback si pas d'image
+        int imageResId = (localPath == null) ? R.drawable.ic_haircut : 0;
 
         Service newService = new Service(
                 0,
@@ -107,17 +118,45 @@ public class AddFragment extends Fragment {
                 title,
                 description,
                 imageResId,
-                imageUriStr,
+                localPath,   // <-- chemin local vers l’image copiée
                 location,
                 price,
                 moreDetails
         );
 
         viewModel.insertService(newService);
-
         Toast.makeText(requireContext(), "Service ajouté avec succès", Toast.LENGTH_SHORT).show();
 
-        // Réinitialiser le formulaire
+        resetForm();
+    }
+
+    private String saveImageToInternalStorage(Uri uri) {
+        try {
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+            File directory = requireContext().getFilesDir();
+            File file = new File(directory, "service_" + System.currentTimeMillis() + ".jpg");
+
+            FileOutputStream outputStream = new FileOutputStream(file);
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            outputStream.close();
+            inputStream.close();
+
+            return file.getAbsolutePath();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void resetForm() {
         edtTitle.setText("");
         edtDescription.setText("");
         edtLocation.setText("");
