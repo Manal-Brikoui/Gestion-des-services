@@ -1,16 +1,21 @@
 package com.example.services_project.ui.dashboard;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.services_project.R;
 import com.example.services_project.model.Service;
+
 import java.util.Calendar;
 
 public class ServiceDetailActivity extends AppCompatActivity {
@@ -23,6 +28,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_detail);
+
         // Récupération des vues
         buttonBack = findViewById(R.id.buttonBack);
         imageService = findViewById(R.id.imageServiceDetail);
@@ -37,7 +43,15 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Service service = (Service) getIntent().getSerializableExtra("service");
 
         if (service != null) {
-            imageService.setImageResource(service.getImageResId());
+            // Affichage de l'image : priorité à l'image de l'utilisateur
+            if (service.getImageUri() != null && !service.getImageUri().isEmpty()) {
+                imageService.setImageURI(Uri.parse(service.getImageUri()));
+            } else if (service.getImageResId() != 0) {
+                imageService.setImageResource(service.getImageResId());
+            } else {
+                imageService.setImageResource(R.drawable.ic_launcher_background); // fallback
+            }
+
             textCategory.setText(service.getCategory());
             textTitle.setText(service.getTitle());
             textDescription.setText(service.getDescription());

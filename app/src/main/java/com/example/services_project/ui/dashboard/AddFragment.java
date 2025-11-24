@@ -35,7 +35,6 @@ public class AddFragment extends Fragment {
     private HomeFragmentViewModel viewModel;
     private Uri selectedImageUri = null;
 
-    // ActivityResultLauncher pour ouvrir la galerie
     private ActivityResultLauncher<Intent> galleryLauncher;
 
     @Nullable
@@ -55,7 +54,7 @@ public class AddFragment extends Fragment {
         edtMoreDetails = root.findViewById(R.id.edtMoreDetails);
         spinnerCategory = root.findViewById(R.id.spinnerCategory);
         btnAddService = root.findViewById(R.id.btnAddService);
-        imgService = root.findViewById(R.id.imgService); // ImageView pour montrer l'image
+        imgService = root.findViewById(R.id.imgService);
 
         // Spinner catégories
         String[] categories = {"COIFFURE", "PLOMBERIE", "MASSAGE", "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE", "DESIGN", "CUISINE"};
@@ -63,7 +62,7 @@ public class AddFragment extends Fragment {
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterSpinner);
 
-        // Initialiser le launcher pour la galerie
+        // Launcher pour la galerie
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -74,9 +73,7 @@ public class AddFragment extends Fragment {
                 }
         );
 
-        // Clic sur ImageView pour choisir une image
         imgService.setOnClickListener(v -> openGallery());
-
         btnAddService.setOnClickListener(v -> addService());
 
         return root;
@@ -101,14 +98,8 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        int imageResId;
-        if (selectedImageUri != null) {
-            // Ici tu peux soit stocker l'URI sous forme de String dans ta DB
-            // ou convertir en bitmap et sauvegarder dans le fichier
-            imageResId = 0; // marque comme "custom image", tu gères ça dans ton adapter
-        } else {
-            imageResId = R.drawable.ic_haircut; // image par défaut
-        }
+        int imageResId = selectedImageUri == null ? R.drawable.ic_haircut : 0;
+        String imageUriStr = selectedImageUri != null ? selectedImageUri.toString() : null;
 
         Service newService = new Service(
                 0,
@@ -116,6 +107,7 @@ public class AddFragment extends Fragment {
                 title,
                 description,
                 imageResId,
+                imageUriStr,
                 location,
                 price,
                 moreDetails
