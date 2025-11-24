@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Services Project</string>
+    <string name="edit_service">Modifier le service</string>
+
     <string name="service_image">Image du service</string>
 </resources>

@@ -62,7 +62,8 @@ public class AddFragment extends Fragment {
 
         // Spinner
         String[] categories = {"COIFFURE", "PLOMBERIE", "MASSAGE", "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE", "DESIGN", "CUISINE"};
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, categories);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterSpinner);
 
@@ -102,15 +103,16 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        // --- SAUVEGARDE LOCALE DE L’IMAGE ---
+        // Sauvegarde locale de l’image
         String localPath = null;
-
         if (selectedImageUri != null) {
             localPath = saveImageToInternalStorage(selectedImageUri);
         }
 
-        // fallback si pas d'image
         int imageResId = (localPath == null) ? R.drawable.ic_haircut : 0;
+
+        // Récupération de l'ID de l'utilisateur
+        int userId = getCurrentUserId();
 
         Service newService = new Service(
                 0,
@@ -118,15 +120,15 @@ public class AddFragment extends Fragment {
                 title,
                 description,
                 imageResId,
-                localPath,   // <-- chemin local vers l’image copiée
+                localPath,
                 location,
                 price,
-                moreDetails
+                moreDetails,
+                userId
         );
 
         viewModel.insertService(newService);
         Toast.makeText(requireContext(), "Service ajouté avec succès", Toast.LENGTH_SHORT).show();
-
         resetForm();
     }
 
@@ -137,17 +139,14 @@ public class AddFragment extends Fragment {
             File file = new File(directory, "service_" + System.currentTimeMillis() + ".jpg");
 
             FileOutputStream outputStream = new FileOutputStream(file);
-
             byte[] buffer = new byte[4096];
             int bytesRead;
-
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
 
             outputStream.close();
             inputStream.close();
-
             return file.getAbsolutePath();
 
         } catch (Exception e) {
@@ -165,5 +164,11 @@ public class AddFragment extends Fragment {
         spinnerCategory.setSelection(0);
         imgService.setImageResource(R.drawable.ic_haircut);
         selectedImageUri = null;
+    }
+
+    // Méthode temporaire pour récupérer l'ID utilisateur
+    private int getCurrentUserId() {
+        // TODO : remplacer par la récupération réelle de l'utilisateur connecté
+        return 1;
     }
 }

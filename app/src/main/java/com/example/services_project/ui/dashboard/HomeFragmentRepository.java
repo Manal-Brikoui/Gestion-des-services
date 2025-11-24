@@ -24,16 +24,17 @@ public class HomeFragmentRepository {
         List<Service> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // On récupère maintenant aussi imageUri
+        // Ajouter userId à la requête SELECT
         Cursor cursor = db.rawQuery(
-                "SELECT id, category, title, description, imageResId, imageUri, location, price, moreDetails FROM services",
+                "SELECT id, category, title, description, imageResId, imageUri, location, price, moreDetails, userId FROM services",
                 null
         );
 
         if (cursor.moveToFirst()) {
             do {
                 int imageResId = cursor.getInt(cursor.getColumnIndexOrThrow("imageResId"));
-                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow("imageUri")); // <- nouveau
+                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow("imageUri"));
+                int userId = cursor.getInt(cursor.getColumnIndexOrThrow("userId"));
 
                 list.add(new Service(
                         cursor.getInt(cursor.getColumnIndexOrThrow("id")),
@@ -41,10 +42,11 @@ public class HomeFragmentRepository {
                         cursor.getString(cursor.getColumnIndexOrThrow("title")),
                         cursor.getString(cursor.getColumnIndexOrThrow("description")),
                         imageResId,
-                        imageUri, // <- nouveau champ
+                        imageUri,
                         cursor.getString(cursor.getColumnIndexOrThrow("location")),
                         cursor.getString(cursor.getColumnIndexOrThrow("price")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("moreDetails"))
+                        cursor.getString(cursor.getColumnIndexOrThrow("moreDetails")),
+                        userId
                 ));
             } while (cursor.moveToNext());
         }
@@ -62,10 +64,11 @@ public class HomeFragmentRepository {
         values.put("title", service.getTitle());
         values.put("description", service.getDescription());
         values.put("imageResId", service.getImageResId());
-        values.put("imageUri", service.getImageUri()); // <- nouveau
+        values.put("imageUri", service.getImageUri());
         values.put("location", service.getLocation());
         values.put("price", service.getPrice());
         values.put("moreDetails", service.getMoreDetails());
+        values.put("userId", service.getUserId()); // <-- ajouté
 
         db.insert("services", null, values);
         db.close();

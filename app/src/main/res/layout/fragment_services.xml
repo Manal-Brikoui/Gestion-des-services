@@ -1,16 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/services_fragment"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:padding="16dp"
+    android:background="@color/white">
 
+    <!-- Titre -->
     <TextView
-        android:id="@+id/tv_services"
+        android:id="@+id/textTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Services"
-        android:layout_gravity="center"
-        android:textSize="20sp"
-        android:textColor="@android:color/black"/>
-</FrameLayout>
+        android:text="Mes Services"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="8dp"/>
+
+    <!-- Sous-titre -->
+    <TextView
+        android:id="@+id/textSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voici la liste des services que vous avez postés"
+        android:textSize="16sp"
+        android:textColor="#555555"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp"/>
+
+    <!-- Message vide -->
+    <TextView
+        android:id="@+id/textEmptyMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Vous n'avez posté aucun service pour le moment"
+        android:textSize="16sp"
+        android:textColor="#FF4444"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="16dp"/>
+
+    <!-- Liste des services -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPostedServices"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"/>
+</LinearLayout>

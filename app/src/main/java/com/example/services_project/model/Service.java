@@ -8,16 +8,17 @@ public class Service implements Serializable {
     private String category;
     private String title;
     private String description;
-    private int imageResId;       // Pour images par défaut
-    private String imageUri;      // Pour images choisies par l’utilisateur
+    private int imageResId;
+    private String imageUri;
     private String location;
     private String price;
     private String moreDetails;
+    private int userId; // ID de l'utilisateur
 
     public Service(int id, String category, String title, String description,
                    int imageResId, String imageUri,
-                   String location, String price, String moreDetails) {
-
+                   String location, String price, String moreDetails,
+                   int userId) {
         this.id = id;
         this.category = category;
         this.title = title;
@@ -27,6 +28,7 @@ public class Service implements Serializable {
         this.location = location;
         this.price = price;
         this.moreDetails = moreDetails;
+        this.userId = userId;
     }
 
     public int getId() { return id; }
@@ -38,4 +40,5 @@ public class Service implements Serializable {
     public String getLocation() { return location; }
     public String getPrice() { return price; }
     public String getMoreDetails() { return moreDetails; }
+    public int getUserId() { return userId; }
 }
