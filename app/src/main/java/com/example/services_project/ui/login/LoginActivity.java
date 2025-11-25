@@ -6,8 +6,11 @@ import android.widget.Button;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.services_project.R;
+import com.example.services_project.data.DatabaseHelper;
 import com.example.services_project.ui.register.RegisterActivity;
 import com.example.services_project.ui.dashboard.DashboardActivity;
 import com.example.services_project.utils.UserSessionManager;
@@ -17,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText edtEmail, edtPassword;
     private Button btnLogin, btnRegister;
     private UserSessionManager sessionManager;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
 
         sessionManager = new UserSessionManager(this);
+        dbHelper = new DatabaseHelper(this);
 
         // Gestion du bouton Login
         btnLogin.setOnClickListener(v -> {
@@ -37,25 +42,26 @@ public class LoginActivity extends AppCompatActivity {
 
             if (!email.isEmpty() && !password.isEmpty()) {
 
-                // 🔑 Ici, on récupère l'ID du user depuis le repository ou mock
-                int userId = getUserIdByEmail(email); // Méthode fictive à implémenter
+                if (dbHelper.checkUser(email, password)) {
+                    // Récupérer l'ID utilisateur
+                    int userId = getUserId(email);
 
-                if (userId != -1) {
-                    // Sauvegarder l'ID du user connecté
+                    // Sauvegarder l'ID dans la session
                     sessionManager.saveUserId(userId);
 
                     Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
 
                     // Passage au dashboard
                     Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                    intent.putExtra("userId", userId); // Passer l'ID utilisateur
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(this, "Utilisateur non trouvé", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
                 }
 
             } else {
-                Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Email et mot de passe requis", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -66,17 +72,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Méthode temporaire pour récupérer un ID utilisateur à partir de l'email
-     * Remplacez ceci par votre logique réelle (BDD ou mock)
+     * Récupère l'ID utilisateur depuis la BDD selon l'email
      */
-    private int getUserIdByEmail(String email) {
-        switch (email) {
-            case "manal@gmail.com":
-                return 1;
-            case "manal11@gmail.com":
-                return 2;
-            default:
-                return -1;
+    private int getUserId(String email) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DatabaseHelper.TABLE_USERS,
+                new String[]{DatabaseHelper.COLUMN_ID},
+                DatabaseHelper.COLUMN_EMAIL + "=?",
+                new String[]{email},
+                null, null, null);
+
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID));
         }
+        cursor.close();
+        db.close();
+        return id;
     }
 }

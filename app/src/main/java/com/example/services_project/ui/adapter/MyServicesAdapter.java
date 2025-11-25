@@ -22,6 +22,7 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
     private List<Service> services;
     private final OnEditClickListener onEditClick;
     private final OnDeleteClickListener onDeleteClick;
+    private final OnViewApplicantsClickListener onViewApplicantsClick;
 
     // --- Interfaces ---
     public interface OnEditClickListener {
@@ -32,14 +33,20 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
         void onDelete(Service service);
     }
 
+    public interface OnViewApplicantsClickListener {
+        void onViewApplicants(Service service);
+    }
+
     // --- Constructeur ---
     public MyServicesAdapter(Context context, List<Service> services,
                              OnEditClickListener onEditClick,
-                             OnDeleteClickListener onDeleteClick) {
+                             OnDeleteClickListener onDeleteClick,
+                             OnViewApplicantsClickListener onViewApplicantsClick) {
         this.context = context;
         this.services = services;
         this.onEditClick = onEditClick;
         this.onDeleteClick = onDeleteClick;
+        this.onViewApplicantsClick = onViewApplicantsClick;
     }
 
     // --- Mise à jour de la liste ---
@@ -77,6 +84,13 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
 
         // Bouton Supprimer
         holder.btnDelete.setOnClickListener(v -> onDeleteClick.onDelete(s));
+
+        // Bouton Voir Candidats
+        holder.btnViewApplicants.setOnClickListener(v -> {
+            if (onViewApplicantsClick != null) {
+                onViewApplicantsClick.onViewApplicants(s);
+            }
+        });
     }
 
     @Override
@@ -87,18 +101,19 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
     // --- ViewHolder ---
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageService, btnEdit, btnDelete;
+        ImageView imageService, btnEdit, btnDelete, btnViewApplicants;
         TextView textTitle, textCategory, textDescription;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            imageService   = itemView.findViewById(R.id.imageService);
-            btnEdit        = itemView.findViewById(R.id.btnEditService);
-            btnDelete      = itemView.findViewById(R.id.btnDeleteService);
-            textTitle      = itemView.findViewById(R.id.textTitle);
-            textCategory   = itemView.findViewById(R.id.textCategory);
-            textDescription = itemView.findViewById(R.id.textDescription);
+            imageService      = itemView.findViewById(R.id.imageService);
+            btnEdit           = itemView.findViewById(R.id.btnEditService);
+            btnDelete         = itemView.findViewById(R.id.btnDeleteService);
+            btnViewApplicants = itemView.findViewById(R.id.btnViewApplicants);
+            textTitle         = itemView.findViewById(R.id.textTitle);
+            textCategory      = itemView.findViewById(R.id.textCategory);
+            textDescription   = itemView.findViewById(R.id.textDescription);
         }
     }
 }

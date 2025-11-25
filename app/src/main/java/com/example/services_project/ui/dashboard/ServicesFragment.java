@@ -44,8 +44,14 @@ public class ServicesFragment extends Fragment {
                 requireContext(),
                 new ArrayList<>(),
                 this::openEditServiceForm,
-                this::deleteUserService
+                this::deleteUserService,
+                service -> {
+                    // Ouvrir le dialog des candidats pour ce service
+                    ApplicantsDialogFragment dialog = ApplicantsDialogFragment.newInstance(service.getId());
+                    dialog.show(getParentFragmentManager(), "ApplicantsDialog");
+                }
         );
+
 
         recyclerView.setAdapter(adapter);
 

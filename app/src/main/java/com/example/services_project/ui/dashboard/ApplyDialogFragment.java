@@ -14,8 +14,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.services_project.R;
+import com.example.services_project.model.Candidate;
 
 import java.util.Calendar;
 
@@ -25,11 +27,25 @@ public class ApplyDialogFragment extends DialogFragment {
     private Button btnPostuler;
     private ImageView btnClose;
 
+    private int serviceId;
+    private ServicesViewModel viewModel;
+
+    public static ApplyDialogFragment newInstance(int serviceId) {
+        ApplyDialogFragment fragment = new ApplyDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt("serviceId", serviceId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.dialog_apply_service, container, false);
-        //  Récupération des vues
+
+        // Récupération des vues
         editNom = view.findViewById(R.id.editNom);
         editPrenom = view.findViewById(R.id.editPrenom);
         editEmail = view.findViewById(R.id.editEmail);
@@ -39,6 +55,13 @@ public class ApplyDialogFragment extends DialogFragment {
         editLocalisation = view.findViewById(R.id.editLocalisation);
         btnPostuler = view.findViewById(R.id.btnPostuler);
         btnClose = view.findViewById(R.id.btnClose);
+
+        // Récupération serviceId
+        if (getArguments() != null) {
+            serviceId = getArguments().getInt("serviceId");
+        }
+
+        viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
         // Fermer le modal
         btnClose.setOnClickListener(v -> dismiss());
@@ -72,7 +95,7 @@ public class ApplyDialogFragment extends DialogFragment {
             timePickerDialog.show();
         });
 
-        //  Bouton Postuler
+        // Bouton Postuler
         btnPostuler.setOnClickListener(v -> {
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();
@@ -84,10 +107,22 @@ public class ApplyDialogFragment extends DialogFragment {
 
             if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || phone.isEmpty()
                     || date.isEmpty() || heure.isEmpty() || localisation.isEmpty()) {
-                Toast.makeText(requireContext(),
-                        "Veuillez remplir tous les champs",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             } else {
+                // Créer un candidat correctement avec serviceId
+                Candidate candidate = new Candidate(
+                        serviceId,                // <-- serviceId ajouté
+                        nom,
+                        prenom,
+                        date + " " + heure,
+                        localisation,
+                        phone,
+                        email
+                );
+
+                // Ajouter au ViewModel
+                viewModel.addApplicant(serviceId, candidate);
+
                 Toast.makeText(requireContext(),
                         "Candidature envoyée pour : " + nom + " " + prenom,
                         Toast.LENGTH_LONG).show();
@@ -95,6 +130,7 @@ public class ApplyDialogFragment extends DialogFragment {
             }
         });
 
+        // Fond transparent
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }

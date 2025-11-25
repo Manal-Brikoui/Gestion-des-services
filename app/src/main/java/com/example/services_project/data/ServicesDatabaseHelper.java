@@ -8,7 +8,7 @@ import com.example.services_project.R;
 public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
-    private static final int DB_VERSION = 23; // Nouvelle version pour recréer la DB proprement
+    private static final int DB_VERSION = 25; // Nouvelle version pour recréer la DB proprement
 
     public ServicesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -17,6 +17,7 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // Table services
         db.execSQL("CREATE TABLE services (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "category TEXT, " +
@@ -30,12 +31,23 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
                 "userId INTEGER DEFAULT 0" +
                 ")");
 
+        // Table candidates
+        db.execSQL("CREATE TABLE candidates (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "serviceId INTEGER, " +
+                "firstName TEXT, " +
+                "lastName TEXT, " +
+                "dateTime TEXT, " +
+                "location TEXT, " +
+                "phone TEXT, " +
+                "email TEXT" +
+                ")");
+
         // ------- SERVICES PAR DÉFAUT (images DRAWABLE) -------
         insertDefaultServices(db);
     }
 
     private void insertDefaultServices(SQLiteDatabase db) {
-
         db.execSQL("INSERT INTO services (category, title, description, imageResId, location, price, moreDetails, userId) VALUES " +
                 "('COIFFURE', 'Coupe de Cheveux', 'Coupe de cheveux avec soins du cuir chevelu', " +
                 R.drawable.ic_haircut + ", 'Salon Paris 12', '50€', 'Inclus shampoing et massage du cuir chevelu', 0)");
@@ -71,9 +83,9 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-        // Version RESET : recréer la table proprement
+        // Supprime tables et recrée tout
         db.execSQL("DROP TABLE IF EXISTS services");
+        db.execSQL("DROP TABLE IF EXISTS candidates");
         onCreate(db);
     }
 }

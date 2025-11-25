@@ -12,8 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.services_project.R;
+import com.example.services_project.model.Candidate; // Import manquant
 import com.example.services_project.model.Service;
 
 import java.io.File;
@@ -25,12 +27,18 @@ public class ServiceDetailActivity extends AppCompatActivity {
     private TextView textCategory, textTitle, textDescription, textPrice, textLocation;
     private Button applyButton;
 
+    // Déclaration du ViewModel
+    private ServicesViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_detail);
 
-        // Initialisation des vues
+        // Initialisation du ViewModel
+        viewModel = new ViewModelProvider(this).get(ServicesViewModel.class);
+
+        // Initialisation des vues (le reste de l'initialisation est inchangé)
         buttonBack = findViewById(R.id.buttonBack);
         imageService = findViewById(R.id.imageServiceDetail);
         textCategory = findViewById(R.id.textCategoryDetail);
@@ -44,7 +52,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Service service = (Service) getIntent().getSerializableExtra("service");
 
         if (service != null) {
-            // ⚠️ Chargement image sécurisé
+            // ⚠️ Chargement image sécurisé (inchangé)
             try {
                 if (service.getImageUri() != null && !service.getImageUri().isEmpty()) {
                     Uri uri = Uri.parse(service.getImageUri());
@@ -59,7 +67,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 imageService.setImageResource(R.drawable.ic_haircut);
             }
 
-            // Remplissage des champs
+            // Remplissage des champs (inchangé)
             textCategory.setText(service.getCategory() != null ? service.getCategory() : "");
             textTitle.setText(service.getTitle() != null ? service.getTitle() : "");
             textDescription.setText(service.getDescription() != null ? service.getDescription() : "");
@@ -97,7 +105,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         // Fermer le modal
         btnClose.setOnClickListener(x -> dialog.dismiss());
 
-        // DatePicker
+        // DatePicker (inchangé)
         editDate.setOnClickListener(x -> {
             Calendar c = Calendar.getInstance();
             int year = c.get(Calendar.YEAR);
@@ -110,7 +118,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
             dpd.show();
         });
 
-        // TimePicker
+        // TimePicker (inchangé)
         editHeure.setOnClickListener(x -> {
             Calendar c = Calendar.getInstance();
             int hour = c.get(Calendar.HOUR_OF_DAY);
@@ -122,7 +130,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
             tpd.show();
         });
 
-        // Postuler
+        // Postuler (LOGIQUE DE SAUVEGARDE AJOUTÉE)
         btnPostuler.setOnClickListener(x -> {
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();
@@ -137,6 +145,21 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 Toast.makeText(ServiceDetailActivity.this,
                         "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             } else {
+
+                // 1. Créer l'objet Candidat
+                Candidate candidate = new Candidate(
+                        service.getId(),                // Utilise l'ID du service
+                        nom,
+                        prenom,
+                        date + " " + heure,             // Combine Date et Heure
+                        localisation,
+                        phone,
+                        email
+                );
+
+                // 2. ENREGISTRER la candidature via le ViewModel
+                viewModel.addApplicant(service.getId(), candidate);
+
                 Toast.makeText(ServiceDetailActivity.this,
                         "Candidature envoyée avec succès pour : " + service.getTitle(),
                         Toast.LENGTH_LONG).show();
