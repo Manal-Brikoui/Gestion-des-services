@@ -16,50 +16,67 @@ import com.example.services_project.model.Service;
 
 import java.util.List;
 
-public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.MyServiceViewHolder> {
+public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.ViewHolder> {
 
+    private final Context context;
     private List<Service> services;
-    private Context context;
-    private OnEditClickListener editClickListener;
+    private final OnEditClickListener onEditClick;
+    private final OnDeleteClickListener onDeleteClick;
 
-    // Interface pour gérer le clic sur le crayon
+    // --- Interfaces ---
     public interface OnEditClickListener {
-        void onEditClick(Service service);
+        void onEdit(Service service);
     }
 
-    public MyServicesAdapter(Context context, List<Service> services, OnEditClickListener listener) {
+    public interface OnDeleteClickListener {
+        void onDelete(Service service);
+    }
+
+    // --- Constructeur ---
+    public MyServicesAdapter(Context context, List<Service> services,
+                             OnEditClickListener onEditClick,
+                             OnDeleteClickListener onDeleteClick) {
         this.context = context;
         this.services = services;
-        this.editClickListener = listener;
+        this.onEditClick = onEditClick;
+        this.onDeleteClick = onDeleteClick;
     }
 
+    // --- Mise à jour de la liste ---
+    public void updateList(List<Service> newList) {
+        this.services = newList;
+        notifyDataSetChanged();
+    }
+
+    // --- Création ViewHolder ---
     @NonNull
     @Override
-    public MyServiceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_my_service, parent, false);
-        return new MyServiceViewHolder(view);
+        return new ViewHolder(view);
     }
 
+    // --- Binding ---
     @Override
-    public void onBindViewHolder(@NonNull MyServiceViewHolder holder, int position) {
-        Service service = services.get(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Service s = services.get(position);
 
-        holder.tvCategory.setText(service.getCategory());
-        holder.tvTitle.setText(service.getTitle());
-        holder.tvDescription.setText(service.getDescription());
+        holder.textCategory.setText(s.getCategory());
+        holder.textTitle.setText(s.getTitle());
+        holder.textDescription.setText(s.getDescription());
 
-        if (service.getImageUri() != null && !service.getImageUri().isEmpty()) {
-            holder.imgService.setImageURI(Uri.parse(service.getImageUri()));
+        // Charger image
+        if (s.getImageUri() != null && !s.getImageUri().isEmpty()) {
+            holder.imageService.setImageURI(Uri.parse(s.getImageUri()));
         } else {
-            holder.imgService.setImageResource(service.getImageResId());
+            holder.imageService.setImageResource(R.drawable.ic_placeholder);
         }
 
-        // Gestion du clic sur l'icône de modification
-        holder.btnEditService.setOnClickListener(v -> {
-            if (editClickListener != null) {
-                editClickListener.onEditClick(service);
-            }
-        });
+        // Bouton Modifier
+        holder.btnEdit.setOnClickListener(v -> onEditClick.onEdit(s));
+
+        // Bouton Supprimer
+        holder.btnDelete.setOnClickListener(v -> onDeleteClick.onDelete(s));
     }
 
     @Override
@@ -67,22 +84,21 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.My
         return services.size();
     }
 
-    public void updateList(List<Service> newList) {
-        services = newList;
-        notifyDataSetChanged();
-    }
+    // --- ViewHolder ---
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-    static class MyServiceViewHolder extends RecyclerView.ViewHolder {
-        ImageView imgService, btnEditService;
-        TextView tvCategory, tvTitle, tvDescription;
+        ImageView imageService, btnEdit, btnDelete;
+        TextView textTitle, textCategory, textDescription;
 
-        public MyServiceViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgService = itemView.findViewById(R.id.imageService);
-            btnEditService = itemView.findViewById(R.id.btnEditService);
-            tvCategory = itemView.findViewById(R.id.textCategory);
-            tvTitle = itemView.findViewById(R.id.textTitle);
-            tvDescription = itemView.findViewById(R.id.textDescription);
+
+            imageService   = itemView.findViewById(R.id.imageService);
+            btnEdit        = itemView.findViewById(R.id.btnEditService);
+            btnDelete      = itemView.findViewById(R.id.btnDeleteService);
+            textTitle      = itemView.findViewById(R.id.textTitle);
+            textCategory   = itemView.findViewById(R.id.textCategory);
+            textDescription = itemView.findViewById(R.id.textDescription);
         }
     }
 }

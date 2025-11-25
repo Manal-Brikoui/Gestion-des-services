@@ -19,7 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.services_project.R;
@@ -29,15 +29,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-public class AddFragment extends Fragment {
+public class AddFragment extends DialogFragment {
 
     private EditText edtTitle, edtDescription, edtLocation, edtPrice, edtMoreDetails;
     private Spinner spinnerCategory;
-    private Button btnAddService;
+    private Button btnSaveService;
     private ImageView imgService;
 
-    private HomeFragmentViewModel viewModel;
-    private Uri selectedImageUri = null;
+    private ServicesViewModel viewModel;
+    private Uri selectedImageUri = null;      // image choisie par l’utilisateur
+    private Uri currentImageUri = null;       // image existante du service (modification)
+    private int serviceId = -1;               // -1 = ajout, sinon modification
 
     private ActivityResultLauncher<Intent> galleryLauncher;
 
@@ -48,7 +50,7 @@ public class AddFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_add, container, false);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(HomeFragmentViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
         // Initialisation UI
         edtTitle = root.findViewById(R.id.edtTitle);
@@ -57,17 +59,41 @@ public class AddFragment extends Fragment {
         edtPrice = root.findViewById(R.id.edtPrice);
         edtMoreDetails = root.findViewById(R.id.edtMoreDetails);
         spinnerCategory = root.findViewById(R.id.spinnerCategory);
-        btnAddService = root.findViewById(R.id.btnAddService);
+        btnSaveService = root.findViewById(R.id.btnAddService);
         imgService = root.findViewById(R.id.imgService);
 
-        // Spinner
+        // Spinner categories
         String[] categories = {"COIFFURE", "PLOMBERIE", "MASSAGE", "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE", "DESIGN", "CUISINE"};
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categories);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterSpinner);
 
-        // Galerie Launcher
+        // Arguments pour modification
+        if (getArguments() != null) {
+            serviceId = getArguments().getInt("serviceId", -1);
+            edtTitle.setText(getArguments().getString("title", ""));
+            edtDescription.setText(getArguments().getString("description", ""));
+            edtLocation.setText(getArguments().getString("location", ""));
+            edtPrice.setText(getArguments().getString("price", ""));
+            edtMoreDetails.setText(getArguments().getString("moreDetails", ""));
+            spinnerCategory.setSelection(adapterSpinner.getPosition(getArguments().getString("category", categories[0])));
+
+            String imageUri = getArguments().getString("imageUri");
+            if (imageUri != null && !imageUri.isEmpty()) {
+                try {
+                    currentImageUri = Uri.parse(imageUri);
+                    imgService.setImageURI(currentImageUri);
+                    selectedImageUri = currentImageUri; // par défaut = image existante
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    selectedImageUri = null;
+                    currentImageUri = null;
+                }
+            }
+        }
+
+        // Galerie
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -79,7 +105,7 @@ public class AddFragment extends Fragment {
         );
 
         imgService.setOnClickListener(v -> openGallery());
-        btnAddService.setOnClickListener(v -> addService());
+        btnSaveService.setOnClickListener(v -> saveService());
 
         return root;
     }
@@ -90,7 +116,7 @@ public class AddFragment extends Fragment {
         galleryLauncher.launch(intent);
     }
 
-    private void addService() {
+    private void saveService() {
         String title = edtTitle.getText().toString().trim();
         String description = edtDescription.getText().toString().trim();
         String location = edtLocation.getText().toString().trim();
@@ -103,33 +129,31 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        // Sauvegarde locale de l’image
-        String localPath = null;
-        if (selectedImageUri != null) {
+        String localPath;
+        int imageResId = 0;
+
+        if (selectedImageUri != null && !selectedImageUri.equals(currentImageUri)) {
+            // Nouvelle image choisie → enregistrer
             localPath = saveImageToInternalStorage(selectedImageUri);
+        } else {
+            // Pas de nouvelle image → garder l’ancienne
+            localPath = currentImageUri != null ? currentImageUri.toString() : null;
+            imageResId = (localPath == null) ? R.drawable.ic_haircut : 0;
         }
 
-        int imageResId = (localPath == null) ? R.drawable.ic_haircut : 0;
-
-        // Récupération de l'ID de l'utilisateur
         int userId = getCurrentUserId();
 
-        Service newService = new Service(
-                0,
-                category,
-                title,
-                description,
-                imageResId,
-                localPath,
-                location,
-                price,
-                moreDetails,
-                userId
-        );
+        Service service = new Service(serviceId, category, title, description, imageResId, localPath, location, price, moreDetails, userId);
 
-        viewModel.insertService(newService);
-        Toast.makeText(requireContext(), "Service ajouté avec succès", Toast.LENGTH_SHORT).show();
-        resetForm();
+        if (serviceId == -1) {
+            viewModel.insertService(service);
+            Toast.makeText(requireContext(), "Service ajouté avec succès", Toast.LENGTH_SHORT).show();
+        } else {
+            viewModel.updateService(service);
+            Toast.makeText(requireContext(), "Service modifié avec succès", Toast.LENGTH_SHORT).show();
+        }
+
+        dismiss(); // fermer le DialogFragment
     }
 
     private String saveImageToInternalStorage(Uri uri) {
@@ -155,20 +179,19 @@ public class AddFragment extends Fragment {
         }
     }
 
-    private void resetForm() {
-        edtTitle.setText("");
-        edtDescription.setText("");
-        edtLocation.setText("");
-        edtPrice.setText("");
-        edtMoreDetails.setText("");
-        spinnerCategory.setSelection(0);
-        imgService.setImageResource(R.drawable.ic_haircut);
-        selectedImageUri = null;
+    private int getCurrentUserId() {
+        return 1; // TODO : remplacer par le vrai utilisateur
     }
 
-    // Méthode temporaire pour récupérer l'ID utilisateur
-    private int getCurrentUserId() {
-        // TODO : remplacer par la récupération réelle de l'utilisateur connecté
-        return 1;
+    // Ajuster la taille du Dialog pour un formulaire plus grand
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            int width = ViewGroup.LayoutParams.MATCH_PARENT;
+            int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            getDialog().getWindow().setLayout(width, height);
+            getDialog().getWindow().setBackgroundDrawableResource(android.R.color.white);
+        }
     }
 }

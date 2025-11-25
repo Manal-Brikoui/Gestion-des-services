@@ -13,7 +13,7 @@ import java.util.List;
 
 public class HomeFragmentRepository {
 
-    private ServicesDatabaseHelper dbHelper;
+    private final ServicesDatabaseHelper dbHelper;
 
     public HomeFragmentRepository(Context context) {
         dbHelper = new ServicesDatabaseHelper(context);
@@ -24,7 +24,6 @@ public class HomeFragmentRepository {
         List<Service> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // Ajouter userId à la requête SELECT
         Cursor cursor = db.rawQuery(
                 "SELECT id, category, title, description, imageResId, imageUri, location, price, moreDetails, userId FROM services",
                 null
@@ -32,21 +31,17 @@ public class HomeFragmentRepository {
 
         if (cursor.moveToFirst()) {
             do {
-                int imageResId = cursor.getInt(cursor.getColumnIndexOrThrow("imageResId"));
-                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow("imageUri"));
-                int userId = cursor.getInt(cursor.getColumnIndexOrThrow("userId"));
-
                 list.add(new Service(
                         cursor.getInt(cursor.getColumnIndexOrThrow("id")),
                         cursor.getString(cursor.getColumnIndexOrThrow("category")),
                         cursor.getString(cursor.getColumnIndexOrThrow("title")),
                         cursor.getString(cursor.getColumnIndexOrThrow("description")),
-                        imageResId,
-                        imageUri,
+                        cursor.getInt(cursor.getColumnIndexOrThrow("imageResId")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("imageUri")),
                         cursor.getString(cursor.getColumnIndexOrThrow("location")),
                         cursor.getString(cursor.getColumnIndexOrThrow("price")),
                         cursor.getString(cursor.getColumnIndexOrThrow("moreDetails")),
-                        userId
+                        cursor.getInt(cursor.getColumnIndexOrThrow("userId"))
                 ));
             } while (cursor.moveToNext());
         }
@@ -68,9 +63,34 @@ public class HomeFragmentRepository {
         values.put("location", service.getLocation());
         values.put("price", service.getPrice());
         values.put("moreDetails", service.getMoreDetails());
-        values.put("userId", service.getUserId()); // <-- ajouté
+        values.put("userId", service.getUserId());
 
         db.insert("services", null, values);
+        db.close();
+    }
+
+    // ----------------- Modifier un service existant -----------------
+    public void updateService(Service service) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("category", service.getCategory());
+        values.put("title", service.getTitle());
+        values.put("description", service.getDescription());
+        values.put("imageResId", service.getImageResId());
+        values.put("imageUri", service.getImageUri());
+        values.put("location", service.getLocation());
+        values.put("price", service.getPrice());
+        values.put("moreDetails", service.getMoreDetails());
+        values.put("userId", service.getUserId());
+
+        db.update("services", values, "id = ?", new String[]{String.valueOf(service.getId())});
+        db.close();
+    }
+
+    // ----------------- Supprimer un service -----------------
+    public void deleteService(int serviceId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete("services", "id = ?", new String[]{String.valueOf(serviceId)});
         db.close();
     }
 }

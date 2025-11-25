@@ -31,6 +31,7 @@ public class ServicesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View root = inflater.inflate(R.layout.fragment_services, container, false);
 
         recyclerView = root.findViewById(R.id.recyclerViewPostedServices);
@@ -38,15 +39,19 @@ public class ServicesFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Adapter avec listener pour le clic sur le crayon
-        adapter = new MyServicesAdapter(requireContext(), new ArrayList<>(), service -> {
-            openEditServiceForm(service);
-        });
+        // Adapter avec callbacks EDIT + DELETE
+        adapter = new MyServicesAdapter(
+                requireContext(),
+                new ArrayList<>(),
+                this::openEditServiceForm,
+                this::deleteUserService
+        );
+
         recyclerView.setAdapter(adapter);
 
-        viewModel = new ViewModelProvider(this).get(ServicesViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
-        // Observer les services postés
+        // Observer les services du user connecté
         viewModel.getPostedServices().observe(getViewLifecycleOwner(), services -> {
             if (services != null && !services.isEmpty()) {
                 adapter.updateList(services);
@@ -61,8 +66,10 @@ public class ServicesFragment extends Fragment {
         return root;
     }
 
-    // Ouvre le formulaire AddFragment en mode édition
+    // Ouvrir formulaire de modification (uniquement si propriétaire)
     private void openEditServiceForm(Service service) {
+        if (service.getUserId() != viewModel.getCurrentUserId()) return;
+
         AddFragment fragment = new AddFragment();
 
         Bundle args = new Bundle();
@@ -73,15 +80,16 @@ public class ServicesFragment extends Fragment {
         args.putString("location", service.getLocation());
         args.putString("price", service.getPrice());
         args.putString("moreDetails", service.getMoreDetails());
-        args.putString("imageUri", service.getImageUri());
+        args.putString("imageUri", service.getImageUri() != null ? service.getImageUri() : "");
 
         fragment.setArguments(args);
+        fragment.show(getParentFragmentManager(), "edit_service");
+    }
 
-        getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-
-                .addToBackStack(null)
-                .commit();
+    // Supprimer service (uniquement si propriétaire)
+    private void deleteUserService(Service service) {
+        if (service.getUserId() == viewModel.getCurrentUserId()) {
+            viewModel.deleteService(service);
+        }
     }
 }

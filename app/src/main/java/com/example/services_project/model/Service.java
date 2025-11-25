@@ -31,6 +31,7 @@ public class Service implements Serializable {
         this.userId = userId;
     }
 
+    // ------------------ GETTERS ------------------
     public int getId() { return id; }
     public String getCategory() { return category; }
     public String getTitle() { return title; }
@@ -41,4 +42,41 @@ public class Service implements Serializable {
     public String getPrice() { return price; }
     public String getMoreDetails() { return moreDetails; }
     public int getUserId() { return userId; }
+
+    // ------------------ SETTERS ------------------
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setImageResId(int imageResId) {
+        this.imageResId = imageResId;
+    }
+
+    public void setImageUri(String imageUri) {
+        this.imageUri = imageUri;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public void setMoreDetails(String moreDetails) {
+        this.moreDetails = moreDetails;
+    }
 }
