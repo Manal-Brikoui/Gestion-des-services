@@ -116,7 +116,7 @@ public class HomeFragmentRepository {
         }
     }
 
-    // ----------------- Candidates (Corrigé) -----------------
+    // ----------------- Candidatures (Notification) -----------------
     /**
      * Tente d'ajouter un candidat. Loggue une erreur claire si l'insertion échoue.
      */
@@ -192,5 +192,55 @@ public class HomeFragmentRepository {
             db.close();
         }
         return list;
+    }
+
+    // ----------------- Notifications (Nouveau) -----------------
+    /**
+     * Récupère tous les candidats pour tous les services postés par un utilisateur donné (userId).
+     * @param userId L'ID de l'utilisateur dont on veut voir les notifications.
+     */
+    public List<Candidate> getAllCandidatesForUserServices(int userId) {
+        List<Candidate> notifications = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+
+        // Requête SQL utilisant INNER JOIN pour lier les candidatures aux services de l'utilisateur
+        String query = "SELECT c.serviceId, c.firstName, c.lastName, c.dateTime, c.location, c.phone, c.email " +
+                "FROM candidates c " +
+                "INNER JOIN services s ON c.serviceId = s.id " +
+                "WHERE s.userId = ?";
+        String[] selectionArgs = new String[]{String.valueOf(userId)};
+
+        try {
+            cursor = db.rawQuery(query, selectionArgs);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    notifications.add(new Candidate(
+                            cursor.getInt(cursor.getColumnIndexOrThrow("serviceId")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("firstName")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("lastName")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("location")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("phone")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("email"))
+                            // Remarque : Le titre du service n'est pas inclus ici car le modèle Candidate
+                            // ne semble pas avoir de champ pour cela. Si nécessaire, il faudrait modifier le modèle.
+                    ));
+                } while (cursor.moveToNext());
+            }
+
+            Log.d(TAG, "Notifications récupérées pour user ID " + userId + ": " + notifications.size() + " résultats.");
+
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur de lecture des notifications pour user ID " + userId + ": " + e.getMessage());
+            notifications.clear();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+        return notifications;
     }
 }

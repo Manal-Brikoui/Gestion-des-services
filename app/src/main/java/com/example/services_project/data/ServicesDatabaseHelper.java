@@ -8,7 +8,7 @@ import com.example.services_project.R;
 public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
-    private static final int DB_VERSION = 25; // Nouvelle version pour recréer la DB proprement
+    private static final int DB_VERSION = 26; // Nouvelle version pour recréer la DB proprement
 
     public ServicesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

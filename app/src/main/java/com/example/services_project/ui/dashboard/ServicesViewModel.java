@@ -1,12 +1,10 @@
 package com.example.services_project.ui.dashboard;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.example.services_project.model.Candidate;
 import com.example.services_project.model.Service;
 import com.example.services_project.utils.UserSessionManager;
@@ -20,6 +18,10 @@ public class ServicesViewModel extends AndroidViewModel {
 
     // LiveData des services postés par l'utilisateur courant
     private final MutableLiveData<List<Service>> postedServices = new MutableLiveData<>(new ArrayList<>());
+
+    // LiveData pour stocker les notifications (candidatures reçues par l'utilisateur)
+    private final MutableLiveData<List<Candidate>> notificationsLiveData = new MutableLiveData<>(new ArrayList<>());
+
     private final HomeFragmentRepository repository;
     private final UserSessionManager sessionManager;
 
@@ -28,10 +30,10 @@ public class ServicesViewModel extends AndroidViewModel {
 
     public ServicesViewModel(@NonNull Application application) {
         super(application);
-        // Assurez-vous d'utiliser le HomeFragmentRepository corrigé (avec logs d'erreurs)
         repository = new HomeFragmentRepository(application.getApplicationContext());
         sessionManager = new UserSessionManager(application.getApplicationContext());
         loadPostedServices();
+        loadNotifications(); // Chargement initial des notifications
     }
 
     // ---------------- Services ----------------
@@ -126,8 +128,8 @@ public class ServicesViewModel extends AndroidViewModel {
     }
 
     /**
-     * Ajoute un candidat et déclenche le rafraîchissement des données du service correspondant.
-     * C'est le point clé pour résoudre le problème de non-mise à jour.
+     * Ajoute un candidat et déclenche le rafraîchissement des données du service correspondant
+     * et des notifications.
      */
     public void addApplicant(int serviceId, Candidate candidate) {
         candidate.setServiceId(serviceId);
@@ -135,9 +137,34 @@ public class ServicesViewModel extends AndroidViewModel {
             // 1. Ajout du candidat dans la base de données
             repository.addCandidate(candidate);
 
-            // 2. Rafraîchir la LiveData correspondante pour notifier le Fragment
-            // C'est cette ligne qui fait le travail de mise à jour manuelle
+            // 2. Rafraîchir la LiveData correspondante pour notifier le ApplicantsDialogFragment
             loadCandidates(serviceId);
+
+            // 3. Rafraîchir la LiveData des notifications pour mettre à jour NotificationsFragment
+            loadNotifications();
+        }).start();
+    }
+
+    // ---------------- Notifications (NOUVEAU) ----------------
+
+    /**
+     * Retourne la LiveData pour les notifications (candidatures reçues pour les services de l'utilisateur).
+     */
+    public LiveData<List<Candidate>> getNotificationsLiveData() {
+        return notificationsLiveData;
+    }
+
+    /**
+     * Charge la liste complète des candidatures pour tous les services de l'utilisateur.
+     */
+    public void loadNotifications() {
+        new Thread(() -> {
+            int userId = getCurrentUserId();
+            // Utilise la nouvelle méthode du Repository pour obtenir toutes les candidatures pour les services de cet utilisateur.
+            List<Candidate> notifications = repository.getAllCandidatesForUserServices(userId);
+
+            // Met à jour la LiveData des notifications.
+            notificationsLiveData.postValue(notifications);
         }).start();
     }
 }
