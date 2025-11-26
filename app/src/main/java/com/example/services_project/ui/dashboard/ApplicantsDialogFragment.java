@@ -1,12 +1,13 @@
 package com.example.services_project.ui.dashboard;
 
-import android.app.Dialog; // Import manquant si vous ne l'avez pas déjà
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.view.Window; // Import manquant si vous ne l'avez pas déjà
+import android.view.Window;
+import android.util.Log; // Ajout du Log
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,8 @@ public class ApplicantsDialogFragment extends DialogFragment {
     private ApplicantsAdapter adapter;
     private RecyclerView recyclerView;
     private TextView emptyMessage;
+    // Ajout d'une référence au ViewModel
+    private ServicesViewModel viewModel;
 
     public static ApplicantsDialogFragment newInstance(int serviceId) {
         ApplicantsDialogFragment fragment = new ApplicantsDialogFragment();
@@ -38,7 +41,6 @@ public class ApplicantsDialogFragment extends DialogFragment {
         return fragment;
     }
 
-    // ⭐ AJOUT DE LA MÉTHODE onStart POUR DÉFINIR LA TAILLE DU DIALOGUE ⭐
     @Override
     public void onStart() {
         super.onStart();
@@ -46,10 +48,7 @@ public class ApplicantsDialogFragment extends DialogFragment {
         if (dialog != null) {
             Window window = dialog.getWindow();
             if (window != null) {
-                // Définir la largeur à MATCH_PARENT pour prendre toute la largeur disponible
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                // Optionnel: ajouter un padding horizontal pour laisser une petite marge sur les côtés
-                // window.setBackgroundDrawableResource(android.R.color.transparent); // Si vous voulez un fond transparent pour le dialogue lui-même
             }
         }
     }
@@ -60,25 +59,29 @@ public class ApplicantsDialogFragment extends DialogFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        // Si vous avez un background personnalisé pour votre dialogue, vous pouvez le mettre ici
-        // getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
         View view = inflater.inflate(R.layout.fragment_applicants, container, false);
         recyclerView = view.findViewById(R.id.recyclerApplicants);
         emptyMessage = view.findViewById(R.id.textEmptyApplicants);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Instancier l'Adapter avec un listener pour Accepter / Refuser
+        // Initialisation du ViewModel ici pour l'utiliser dans le listener
+        viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
+
+        // Instancier l'Adapter avec la logique ACCEPT / REJECT
         adapter = new ApplicantsAdapter(new ArrayList<>(), new ApplicantsAdapter.OnApplicantActionListener() {
             @Override
             public void onAccept(Candidate candidate) {
-                // TODO : Logique pour accepter le candidat (ex: mettre à jour la base de données)
+                Log.d("APPLICANTS_DIALOG", "Candidat accepté: " + candidate.getLastName());
+                // ✅ APPEL AU VIEWMODEL
+                viewModel.acceptCandidate(candidate);
             }
 
             @Override
             public void onReject(Candidate candidate) {
-                // TODO : Logique pour refuser le candidat (ex: supprimer de la base de données)
+                Log.d("APPLICANTS_DIALOG", "Candidat refusé: " + candidate.getLastName());
+                // ✅ APPEL AU VIEWMODEL
+                viewModel.rejectCandidate(candidate);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -87,10 +90,14 @@ public class ApplicantsDialogFragment extends DialogFragment {
             serviceId = getArguments().getInt(ARG_SERVICE_ID);
         }
 
-        ServicesViewModel viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
-
-        // Observer la LiveData pour mettre à jour la liste en temps réel
-        viewModel.getCandidatesLiveData(serviceId).observe(getViewLifecycleOwner(), this::updateUI);
+        // Vérification cruciale : si serviceId est -1, le chargement échouera.
+        if (serviceId > 0) {
+            // Observer la LiveData pour mettre à jour la liste en temps réel
+            viewModel.getCandidatesLiveData(serviceId).observe(getViewLifecycleOwner(), this::updateUI);
+        } else {
+            Log.e("APPLICANTS_DIALOG", "ID de service invalide: " + serviceId);
+            updateUI(new ArrayList<>()); // Afficher le message d'absence
+        }
 
         return view;
     }
@@ -103,7 +110,7 @@ public class ApplicantsDialogFragment extends DialogFragment {
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyMessage.setVisibility(View.GONE);
-            adapter.updateList(applicants); // Met à jour la liste sans recréer l'Adapter
+            adapter.updateList(applicants);
         }
     }
 }

@@ -8,7 +8,7 @@ import com.example.services_project.R;
 public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
-    private static final int DB_VERSION = 26; // Nouvelle version pour recréer la DB proprement
+    private static final int DB_VERSION = 27; // ✅ INCÉMENTER LA VERSION !
 
     public ServicesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -31,16 +31,18 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
                 "userId INTEGER DEFAULT 0" +
                 ")");
 
-        // Table candidates
+        // ✅ Table candidates CORRIGÉE
         db.execSQL("CREATE TABLE candidates (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "serviceId INTEGER, " +
+                "applicantId INTEGER, " + // ✅ AJOUTÉ : L'ID de l'utilisateur qui postule
                 "firstName TEXT, " +
                 "lastName TEXT, " +
                 "dateTime TEXT, " +
                 "location TEXT, " +
                 "phone TEXT, " +
-                "email TEXT" +
+                "email TEXT," +
+                "status TEXT DEFAULT 'PENDING'" + // ✅ AJOUTÉ : Statut nécessaire pour les boutons (PENDING, ACCEPTED, REJECTED)
                 ")");
 
         // ------- SERVICES PAR DÉFAUT (images DRAWABLE) -------
@@ -48,6 +50,7 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void insertDefaultServices(SQLiteDatabase db) {
+        // ... (Contenu de insertDefaultServices inchangé) ...
         db.execSQL("INSERT INTO services (category, title, description, imageResId, location, price, moreDetails, userId) VALUES " +
                 "('COIFFURE', 'Coupe de Cheveux', 'Coupe de cheveux avec soins du cuir chevelu', " +
                 R.drawable.ic_haircut + ", 'Salon Paris 12', '50€', 'Inclus shampoing et massage du cuir chevelu', 0)");
@@ -80,6 +83,7 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
                 "('CUISINE', 'Chef à Domicile', 'Préparation de repas gastronomiques à domicile', " +
                 R.drawable.ic_chef + ", 'Marrakech', '200€', 'Ingrédients inclus', 0)");
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

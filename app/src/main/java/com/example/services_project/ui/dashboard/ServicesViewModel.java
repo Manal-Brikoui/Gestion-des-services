@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.services_project.model.Candidate;
 import com.example.services_project.model.Service;
 import com.example.services_project.utils.UserSessionManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,85 +19,74 @@ public class ServicesViewModel extends AndroidViewModel {
 
     private final MutableLiveData<List<Service>> postedServices = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<Candidate>> notificationsLiveData = new MutableLiveData<>(new ArrayList<>());
-    private final HomeFragmentRepository repository; // Assurez-vous que cette classe est accessible
+    private final HomeFragmentRepository repository;
     private final UserSessionManager sessionManager;
     private final Map<Integer, MutableLiveData<List<Candidate>>> candidatesMap = new HashMap<>();
 
     public ServicesViewModel(@NonNull Application application) {
         super(application);
-        // Initialisation des dépendances
         repository = new HomeFragmentRepository(application.getApplicationContext());
         sessionManager = new UserSessionManager(application.getApplicationContext());
         loadPostedServices();
         loadNotifications();
     }
 
-    // ---------------- Services ----------------
+    // ---------------- SERVICES & USER ----------------
 
     public LiveData<List<Service>> getPostedServices() {
         return postedServices;
-    }
-
-    public void loadPostedServices() {
-        new Thread(() -> {
-            int userId = getCurrentUserId();
-            List<Service> allServices = repository.getAllServices();
-            List<Service> userServices = new ArrayList<>();
-            for (Service s : allServices) {
-                if (s.getUserId() == userId) {
-                    userServices.add(s);
-                }
-            }
-            postedServices.postValue(userServices);
-        }).start();
-    }
-
-    public void insertService(Service service) {
-        service.setUserId(getCurrentUserId());
-        new Thread(() -> {
-            repository.insertService(service);
-            loadPostedServices(); // Mise à jour de la liste après insertion
-        }).start();
-    }
-
-    public void updateService(Service service) {
-        if (service.getUserId() == getCurrentUserId()) {
-            new Thread(() -> {
-                repository.updateService(service);
-                loadPostedServices(); // Mise à jour de la liste après modification
-            }).start();
-        }
-    }
-
-    public void deleteService(Service service) {
-        if (service.getUserId() == getCurrentUserId()) {
-            new Thread(() -> {
-                repository.deleteService(service.getId());
-                loadPostedServices(); // Mise à jour de la liste après suppression
-            }).start();
-        }
-    }
-
-    public Service getServiceById(int id) {
-        List<Service> list = postedServices.getValue();
-        if (list != null) {
-            for (Service s : list) {
-                if (s.getId() == id) return s;
-            }
-        }
-        return null;
     }
 
     public int getCurrentUserId() {
         return sessionManager.getUserId();
     }
 
+    public void loadPostedServices() {
+        new Thread(() -> {
+            int userId = getCurrentUserId();
+            List<Service> services = repository.getServicesByUser(userId);
+            postedServices.postValue(services);
+        }).start();
+    }
+
+    /** * ✅ CORRIGÉ : Méthode pour insérer un nouveau service.
+     * Fixe le userId avant l'insertion pour lier le service à l'utilisateur actuel.
+     */
+    public void insertService(Service service) {
+        // ⚠️ CORRECTION CRITIQUE : Assurer que le service est lié à l'utilisateur connecté
+        int currentUserId = getCurrentUserId();
+        service.setUserId(currentUserId);
+
+        new Thread(() -> {
+            Log.d("VIEW_MODEL", "Insertion du service pour User ID: " + currentUserId);
+            repository.insertService(service);
+            loadPostedServices(); // Rafraîchit l'affichage
+        }).start();
+    }
+
+    /** * ✅ AJOUTÉ : Méthode pour modifier un service existant.
+     */
+    public void updateService(Service service) {
+        new Thread(() -> {
+            repository.updateService(service);
+            loadPostedServices(); // Rafraîchit l'affichage
+        }).start();
+    }
+
+    public void deleteService(Service service) {
+        if (service == null || service.getId() <= 0) {
+            Log.e("VIEW_MODEL", "Impossible de supprimer le service : ID invalide.");
+            return;
+        }
+
+        new Thread(() -> {
+            repository.deleteService(service.getId());
+            loadPostedServices();
+        }).start();
+    }
+
     // ---------------- Candidates ----------------
 
-    /**
-     * Récupère la LiveData des candidats pour un service donné.
-     * Initialise et charge si elle n'existe pas.
-     */
     public LiveData<List<Candidate>> getCandidatesLiveData(int serviceId) {
         if (!candidatesMap.containsKey(serviceId)) {
             MutableLiveData<List<Candidate>> liveData = new MutableLiveData<>();
@@ -106,12 +96,8 @@ public class ServicesViewModel extends AndroidViewModel {
         return candidatesMap.get(serviceId);
     }
 
-    /**
-     * Récupère la liste des candidats depuis le Repository et met à jour la LiveData.
-     */
     private void loadCandidates(int serviceId) {
         new Thread(() -> {
-            // Suppose que getCandidatesForService est implémenté dans HomeFragmentRepository
             List<Candidate> list = repository.getCandidatesForService(serviceId);
             MutableLiveData<List<Candidate>> liveData = candidatesMap.get(serviceId);
             if (liveData != null) {
@@ -120,62 +106,78 @@ public class ServicesViewModel extends AndroidViewModel {
         }).start();
     }
 
-    /**
-     * Ajoute un candidat et déclenche le rafraîchissement.
-     */
     public void addApplicant(int serviceId, Candidate candidate) {
         candidate.setServiceId(serviceId);
-        new Thread(() -> {
-            // Suppose que addCandidate est implémenté dans HomeFragmentRepository
-            repository.addCandidate(candidate);
+        candidate.setApplicantId(getCurrentUserId());
 
+        new Thread(() -> {
+            repository.addCandidate(candidate);
             loadCandidates(serviceId);
             loadNotifications();
         }).start();
     }
 
-    // ---------------- Notifications (Titre du service dynamique) ----------------
+    public void acceptCandidate(Candidate candidate) {
+        updateCandidateStatus(candidate, "ACCEPTED");
+    }
+
+    public void rejectCandidate(Candidate candidate) {
+        updateCandidateStatus(candidate, "REJECTED");
+    }
+
+    private void updateCandidateStatus(Candidate candidate, String status) {
+        if (candidate.getId() <= 0) {
+            Log.e("VIEW_MODEL", "Impossible de mettre à jour le candidat : ID invalide.");
+            return;
+        }
+
+        new Thread(() -> {
+            repository.updateCandidateStatus(candidate.getId(), status);
+            loadCandidates(candidate.getServiceId());
+            loadNotifications();
+        }).start();
+    }
+
+    // ---------------- Notifications ----------------
 
     public LiveData<List<Candidate>> getNotificationsLiveData() {
         return notificationsLiveData;
     }
 
-    /**
-     * Charge la liste des candidatures et enrichit chaque Candidate avec le titre du Service associé.
-     */
     public void loadNotifications() {
         new Thread(() -> {
             int userId = getCurrentUserId();
             List<Service> allServices = repository.getAllServices();
             Map<Integer, String> serviceTitlesMap = new HashMap<>();
 
-            // 1. Créer une Map des titres de service de l'utilisateur
             for (Service s : allServices) {
-                if (s.getUserId() == userId) {
-                    serviceTitlesMap.put(s.getId(), s.getTitle());
-                }
+                serviceTitlesMap.put(s.getId(), s.getTitle());
             }
 
-            // 2. Récupérer les candidatures brutes
-            List<Candidate> rawCandidates = repository.getAllCandidatesForUserServices(userId);
             List<Candidate> finalNotifications = new ArrayList<>();
 
-            // 3. Fusionner (Assigner le titre du service)
-            for (Candidate candidate : rawCandidates) {
-                int serviceId = candidate.getServiceId();
-                String title = serviceTitlesMap.get(serviceId);
+            // A. Notifications REÇUES (Prestataire/Owner)
+            List<Candidate> receivedCandidates = repository.getAllCandidatesForUserServices(userId);
 
-                if (title != null) {
-                    // Assignation du titre dynamique
-                    candidate.setServiceTitle(title);
-                } else {
-                    candidate.setServiceTitle("Service Inconnu");
-                }
+            for (Candidate candidate : receivedCandidates) {
+                String title = serviceTitlesMap.get(candidate.getServiceId());
+                candidate.setServiceTitle(title != null ? title : "Service Inconnu");
                 finalNotifications.add(candidate);
             }
 
-            // 4. Mettre à jour la LiveData
+            // B. Notifications de RÉPONSE (Candidat/Client)
+            List<Candidate> postedCandidates = repository.getCandidatesPostedByUser(userId);
+
+            for (Candidate candidate : postedCandidates) {
+                if ("ACCEPTED".equals(candidate.getStatus()) || "REJECTED".equals(candidate.getStatus())) {
+                    String title = serviceTitlesMap.get(candidate.getServiceId());
+                    candidate.setServiceTitle(title != null ? title : "Réponse pour service ID " + candidate.getServiceId());
+                    finalNotifications.add(candidate);
+                }
+            }
+
             notificationsLiveData.postValue(finalNotifications);
+
         }).start();
     }
 }

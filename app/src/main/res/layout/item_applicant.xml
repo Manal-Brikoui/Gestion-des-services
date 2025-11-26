@@ -30,17 +30,32 @@
         android:layout_height="wrap_content"
         android:text="Email"/>
 
+    <TextView android:id="@+id/textApplicantStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Statut: PENDING"
+        android:textStyle="italic"
+        android:layout_marginTop="4dp"/>
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"  android:weightSum="2"> <Button
-        android:id="@+id/btnAccept"
-        android:layout_width="0dp"   android:layout_height="wrap_content"
-        android:text="Accepter"
-        android:layout_weight="1"/> <Button
-        android:id="@+id/btnReject"
-        android:layout_width="0dp"   android:layout_height="wrap_content"
-        android:text="Refuser"
-        android:layout_weight="1"   android:layout_marginStart="8dp"/> </LinearLayout>
+        android:layout_marginTop="8dp"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btnAcceptApplicant" android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Accepter"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btnRejectApplicant" android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Refuser"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"/>
+
+    </LinearLayout>
 </LinearLayout>

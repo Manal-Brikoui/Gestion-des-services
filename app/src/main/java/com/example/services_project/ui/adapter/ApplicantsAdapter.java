@@ -5,87 +5,89 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.services_project.R;
 import com.example.services_project.model.Candidate;
-
-import java.util.ArrayList;
 import java.util.List;
 
-public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.ViewHolder> {
+public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.CandidateViewHolder> {
 
-    private final List<Candidate> applicants;
-    private OnApplicantActionListener listener;
+    private List<Candidate> candidateList;
+    private final OnApplicantActionListener listener;
 
-    // 🔥 Le SEUL constructeur correct
-    public ApplicantsAdapter(List<Candidate> applicants, OnApplicantActionListener listener) {
-        this.applicants = applicants != null ? applicants : new ArrayList<>();
-        this.listener = listener;
-    }
-
-    // Listener pour accepter / refuser
+    // 1. Interface de communication pour les actions (Accept/Reject)
     public interface OnApplicantActionListener {
         void onAccept(Candidate candidate);
         void onReject(Candidate candidate);
     }
 
+    public ApplicantsAdapter(List<Candidate> candidateList, OnApplicantActionListener listener) {
+        this.candidateList = candidateList;
+        this.listener = listener;
+    }
+
+    // 2. Méthode de mise à jour de la liste (nécessaire pour l'Observer du ViewModel)
+    public void updateList(List<Candidate> newList) {
+        this.candidateList = newList;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_applicant, parent, false);
-        return new ViewHolder(view);
+    public CandidateViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Assurez-vous que ce layout contient tous les éléments (TextViews + les 2 Buttons)
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_applicant, parent, false);
+        return new CandidateViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Candidate c = applicants.get(position);
+    public void onBindViewHolder(@NonNull CandidateViewHolder holder, int position) {
+        Candidate candidate = candidateList.get(position);
 
-        holder.textName.setText(c.getFirstName() + " " + c.getLastName());
-        holder.textDateTime.setText(c.getDateTime());
-        holder.textLocation.setText(c.getLocation());
-        holder.textPhone.setText(c.getPhone());
-        holder.textEmail.setText(c.getEmail());
+        // Remplissage des champs du candidat
+        holder.name.setText(String.format("%s %s", candidate.getFirstName(), candidate.getLastName()));
+        holder.dateTime.setText(candidate.getDateTime());
+        holder.location.setText(candidate.getLocation());
+        holder.phone.setText(candidate.getPhone());
+        holder.status.setText(candidate.getStatus());
 
-        holder.btnAccept.setOnClickListener(v -> {
-            if (listener != null) listener.onAccept(c);
-        });
+        // 3. Logique des boutons ACCEPT/REJECT
+        if ("PENDING".equals(candidate.getStatus())) {
+            holder.btnAccept.setVisibility(View.VISIBLE);
+            holder.btnReject.setVisibility(View.VISIBLE);
 
-        holder.btnReject.setOnClickListener(v -> {
-            if (listener != null) listener.onReject(c);
-        });
+            // Logique de clic : appelle la méthode définie dans ApplicantsDialogFragment
+            holder.btnAccept.setOnClickListener(v -> listener.onAccept(candidate));
+            holder.btnReject.setOnClickListener(v -> listener.onReject(candidate));
+
+        } else {
+            // Si le candidat est ACCEPTED ou REJECTED, cacher les boutons d'action
+            holder.btnAccept.setVisibility(View.GONE);
+            holder.btnReject.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return applicants.size();
+        return candidateList.size();
     }
 
-    // 🔥 Mise à jour propre de la liste
-    public void updateList(List<Candidate> newList) {
-        applicants.clear();
-        if (newList != null) {
-            applicants.addAll(newList);
-        }
-        notifyDataSetChanged();
-    }
+    // ViewHolder
+    public static class CandidateViewHolder extends RecyclerView.ViewHolder {
+        public TextView name, dateTime, location, phone, status;
+        public Button btnAccept, btnReject; // ✅ Les deux boutons sont ici
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textName, textDateTime, textLocation, textPhone, textEmail;
-        Button btnAccept, btnReject;
-
-        ViewHolder(@NonNull View itemView) {
+        public CandidateViewHolder(View itemView) {
             super(itemView);
-            textName = itemView.findViewById(R.id.textApplicantName);
-            textDateTime = itemView.findViewById(R.id.textApplicantDateTime);
-            textLocation = itemView.findViewById(R.id.textApplicantLocation);
-            textPhone = itemView.findViewById(R.id.textApplicantPhone);
-            textEmail = itemView.findViewById(R.id.textApplicantEmail);
-            btnAccept = itemView.findViewById(R.id.btnAccept);
-            btnReject = itemView.findViewById(R.id.btnReject);
+            name = itemView.findViewById(R.id.textApplicantName);
+            dateTime = itemView.findViewById(R.id.textApplicantDateTime);
+            location = itemView.findViewById(R.id.textApplicantLocation);
+            phone = itemView.findViewById(R.id.textApplicantPhone);
+            status = itemView.findViewById(R.id.textApplicantStatus);
+
+            btnAccept = itemView.findViewById(R.id.btnAcceptApplicant); // 🚨 Vérifiez cet ID
+            btnReject = itemView.findViewById(R.id.btnRejectApplicant); // 🚨 Vérifiez cet ID
         }
     }
 }

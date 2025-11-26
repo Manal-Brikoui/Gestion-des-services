@@ -14,14 +14,17 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     private List<Candidate> notifications;
     private OnNotificationClickListener listener;
+    private final int currentUserId; // 👈 AJOUTÉ : ID de l'utilisateur connecté
 
     public interface OnNotificationClickListener {
         void onNotificationClick(Candidate candidate);
     }
 
-    public NotificationsAdapter(List<Candidate> notifications, OnNotificationClickListener listener) {
+    // ⚠️ CORRECTION : Constructeur mis à jour pour accepter l'ID de l'utilisateur
+    public NotificationsAdapter(List<Candidate> notifications, OnNotificationClickListener listener, int currentUserId) {
         this.notifications = notifications;
         this.listener = listener;
+        this.currentUserId = currentUserId; // 👈 Initialisation
     }
 
     @NonNull
@@ -35,7 +38,9 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         Candidate candidate = notifications.get(position);
-        holder.bind(candidate, listener);
+
+        // ⚠️ CORRECTION : Passer l'ID de l'utilisateur pour la logique de personnalisation
+        holder.bind(candidate, listener, currentUserId);
     }
 
     @Override
@@ -49,42 +54,71 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     }
 
     static class NotificationViewHolder extends RecyclerView.ViewHolder {
+
+        // textNotificationMessage contiendra le titre dynamique (Client/Owner)
         TextView textNotificationMessage;
         TextView textNotificationDate;
-        // Décommenté/Ajouté pour le titre du service
+        // Ce TextView est utile pour afficher des détails supplémentaires ou le statut
         TextView textServiceTitle;
 
         public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
             textNotificationMessage = itemView.findViewById(R.id.textNotificationMessage);
             textNotificationDate = itemView.findViewById(R.id.textNotificationDate);
-            // Associer le TextView à l'ID dans item_notification.xml
-            // Assurez-vous que l'ID textServiceTitle existe dans votre layout!
+            // Si vous avez un champ séparé pour le titre/statut, utilisez-le
             textServiceTitle = itemView.findViewById(R.id.textServiceTitle);
+            // Si le statut est affiché ailleurs, ajustez l'ID ici
         }
 
-        public void bind(final Candidate candidate, final OnNotificationClickListener listener) {
+        // ⚠️ CORRECTION : bind mis à jour pour recevoir l'ID de l'utilisateur
+        public void bind(final Candidate candidate, final OnNotificationClickListener listener, int currentUserId) {
 
-            // 1. Définir le message principal
-            String fullName = candidate.getFirstName() + " " + candidate.getLastName();
-            textNotificationMessage.setText("Demande de service de " + fullName);
+            String serviceTitle = candidate.getServiceTitle() != null ? candidate.getServiceTitle() : "Service Inconnu";
+            String titleToDisplay;
+            String status = candidate.getStatus();
+
+            // ----------------------------------------------------
+            // ⭐️ LOGIQUE DE PERSONNALISATION DU TITRE
+            // ----------------------------------------------------
+            if (candidate.getApplicantId() == currentUserId) {
+
+                // C'est une notification de RÉPONSE à la demande de l'utilisateur (CLIENT)
+                String statusText;
+                if ("ACCEPTED".equals(status)) {
+                    statusText = "acceptée";
+                } else if ("REJECTED".equals(status)) {
+                    statusText = "refusée";
+                } else {
+                    statusText = "en attente";
+                }
+
+                // Format Client : "Votre demande de service [Nom] est [Statut]"
+                titleToDisplay = "Votre demande pour le service " + serviceTitle + " est " + statusText;
+
+                // Afficher le statut dans un champ séparé si possible
+                textServiceTitle.setText("Statut: " + statusText.toUpperCase());
+
+            } else {
+
+                // C'est une notification de CANDIDATURE REÇUE (OWNER)
+                String fullName = candidate.getFirstName() + " " + candidate.getLastName();
+
+                // Format Owner : "[Nom du Candidat] a postulé pour votre service [Nom]"
+                titleToDisplay = fullName + " a postulé pour votre service " + serviceTitle;
+
+                // Afficher le statut (qui est souvent PENDING ici)
+                textServiceTitle.setText("Statut: " + status);
+            }
+
+            // 1. Définir le message/titre personnalisé
+            textNotificationMessage.setText(titleToDisplay);
 
             // 2. Définir la date
             String dateTime = candidate.getDateTime();
-            String dateOnly = dateTime.split(" ")[0];
+            String dateOnly = dateTime.split(" ")[0]; // Prend seulement la date
             textNotificationDate.setText(dateOnly);
 
-            // 3. Définir le titre du service (Maintenant dynamique!)
-            String serviceTitle = candidate.getServiceTitle();
-            if (serviceTitle != null && !serviceTitle.isEmpty()) {
-                textServiceTitle.setText("Pour le service : " + serviceTitle);
-                textServiceTitle.setVisibility(View.VISIBLE);
-            } else {
-                // Si le titre est manquant (problème de données), on le cache
-                textServiceTitle.setVisibility(View.GONE);
-            }
-
-            // 4. Définir l'écouteur de clic
+            // 3. Définir l'écouteur de clic
             itemView.setOnClickListener(v -> listener.onNotificationClick(candidate));
         }
     }

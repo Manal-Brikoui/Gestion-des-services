@@ -1,157 +1,113 @@
 package com.example.services_project.ui.dashboard;
 
-
-
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
-
 import androidx.annotation.Nullable;
-
 import androidx.fragment.app.Fragment;
-
 import androidx.lifecycle.ViewModelProvider;
-
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import androidx.recyclerview.widget.RecyclerView;
-
-
-
 import android.util.Log;
-
 import android.view.LayoutInflater;
-
 import android.view.View;
-
 import android.view.ViewGroup;
-
 import android.widget.TextView;
-
-
+import android.widget.Toast;
 
 import com.example.services_project.R;
-
 import com.example.services_project.model.Candidate;
-
 import com.example.services_project.ui.adapter.NotificationsAdapter;
 
-
-
 import java.util.ArrayList;
-
 import java.util.List;
-
-
 
 public class NotificationsFragment extends Fragment implements NotificationsAdapter.OnNotificationClickListener {
 
-
-
     private RecyclerView recyclerView;
-
     private TextView emptyMessage;
-
     private NotificationsAdapter adapter;
-
     private ServicesViewModel viewModel;
 
-
-
     @Nullable
-
     @Override
-
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
 
-
-
         recyclerView = view.findViewById(R.id.recyclerNotifications);
-
         emptyMessage = view.findViewById(R.id.textEmptyNotifications);
 
+        // Initialisation du ViewModel
+        viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
+        // ⚠️ CORRECTION CRITIQUE : Récupérer l'ID de l'utilisateur avant d'initialiser l'Adapter
+        int currentUserId = viewModel.getCurrentUserId();
 
-// Initialisation du RecyclerView
-
+        // Initialisation du RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new NotificationsAdapter(new ArrayList<>(), this);
+        // ⚠️ CORRECTION : Passer l'ID de l'utilisateur à l'Adapter
+        // (Nécessaire pour que l'Adapter puisse personnaliser le titre de la notification)
+        adapter = new NotificationsAdapter(new ArrayList<>(), this, currentUserId);
 
         recyclerView.setAdapter(adapter);
 
-
-
-// Initialisation du ViewModel
-
-        viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
-
-
-
-// Observer les notifications
-
         viewModel.getNotificationsLiveData().observe(getViewLifecycleOwner(), this::updateUI);
-
-
-
-// S'assurer que les notifications sont chargées lors de l'ouverture du fragment
-
         viewModel.loadNotifications();
 
-
-
         return view;
-
     }
-
-
 
     private void updateUI(List<Candidate> notifications) {
-
         if (notifications == null || notifications.isEmpty()) {
-
             recyclerView.setVisibility(View.GONE);
-
             emptyMessage.setVisibility(View.VISIBLE);
-
         } else {
-
             recyclerView.setVisibility(View.VISIBLE);
-
             emptyMessage.setVisibility(View.GONE);
-
             adapter.updateList(notifications);
-
         }
-
         Log.d("NOTIFICATIONS_FRAG", "Liste de notifications mise à jour. Nombre: " + (notifications != null ? notifications.size() : 0));
-
     }
-
-
-
-// Gère le clic sur une notification
 
     @Override
-
     public void onNotificationClick(Candidate candidate) {
+        if (candidate.getServiceId() <= 0) {
+            Log.e("NOTIFICATIONS_FRAG", "ID de service invalide pour la notification.");
+            return;
+        }
 
-// Lorsque l'utilisateur clique, ouvrir ApplicantsDialogFragment pour ce service ID
+        int currentUserId = viewModel.getCurrentUserId();
 
-        if (candidate.getServiceId() > 0) {
+        // ----------------------------------------------------
+        // LOGIQUE DE CLIC (Reste correcte)
+        // ----------------------------------------------------
+        if (candidate.getApplicantId() == currentUserId) {
 
-            ApplicantsDialogFragment dialog = ApplicantsDialogFragment.newInstance(candidate.getServiceId());
+            // Logique Client : Affiche un Toast informatif (basé sur le titre du service)
+            String serviceTitle = candidate.getServiceTitle();
+            String status = candidate.getStatus();
+            String statusText;
 
-            dialog.show(getParentFragmentManager(), "ApplicantsDialog");
+            if ("ACCEPTED".equals(status)) {
+                statusText = "acceptée";
+            } else if ("REJECTED".equals(status)) {
+                statusText = "refusée";
+            } else {
+                statusText = "en attente";
+            }
+
+            String toastMessage = "Votre demande pour le service "
+                    + (serviceTitle != null ? serviceTitle : "Inconnu")
+                    + " est " + statusText + ".";
+
+            Toast.makeText(requireContext(), toastMessage, Toast.LENGTH_LONG).show();
 
         } else {
 
-            Log.e("NOTIFICATIONS_FRAG", "ID de service invalide pour la notification.");
+            // Logique Propriétaire (Owner) : Ouvre le dialogue Accepter/Refuser
 
+            ApplicantsDialogFragment dialog = ApplicantsDialogFragment.newInstance(candidate.getServiceId());
+            dialog.show(getParentFragmentManager(), "ApplicantsDialog");
         }
-
     }
-
 }

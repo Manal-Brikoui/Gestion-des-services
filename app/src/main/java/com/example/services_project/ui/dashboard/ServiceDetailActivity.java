@@ -15,10 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.services_project.R;
-import com.example.services_project.model.Candidate; // Import manquant
+import com.example.services_project.model.Candidate;
 import com.example.services_project.model.Service;
 
-import java.io.File;
 import java.util.Calendar;
 
 public class ServiceDetailActivity extends AppCompatActivity {
@@ -27,18 +26,17 @@ public class ServiceDetailActivity extends AppCompatActivity {
     private TextView textCategory, textTitle, textDescription, textPrice, textLocation;
     private Button applyButton;
 
-    // Déclaration du ViewModel
     private ServicesViewModel viewModel;
+    // Déclarer l'ID du service ici pour la sécurité
+    private int currentServiceId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_detail);
 
-        // Initialisation du ViewModel
         viewModel = new ViewModelProvider(this).get(ServicesViewModel.class);
 
-        // Initialisation des vues (le reste de l'initialisation est inchangé)
         buttonBack = findViewById(R.id.buttonBack);
         imageService = findViewById(R.id.imageServiceDetail);
         textCategory = findViewById(R.id.textCategoryDetail);
@@ -52,7 +50,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Service service = (Service) getIntent().getSerializableExtra("service");
 
         if (service != null) {
-            // ⚠️ Chargement image sécurisé (inchangé)
+            currentServiceId = service.getId(); // Stocker l'ID
+
+            // Chargement image sécurisé
             try {
                 if (service.getImageUri() != null && !service.getImageUri().isEmpty()) {
                     Uri uri = Uri.parse(service.getImageUri());
@@ -60,14 +60,14 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 } else if (service.getImageResId() > 0) {
                     imageService.setImageResource(service.getImageResId());
                 } else {
-                    imageService.setImageResource(R.drawable.ic_haircut); // fallback
+                    imageService.setImageResource(R.drawable.ic_haircut);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 imageService.setImageResource(R.drawable.ic_haircut);
             }
 
-            // Remplissage des champs (inchangé)
+            // Remplissage des champs
             textCategory.setText(service.getCategory() != null ? service.getCategory() : "");
             textTitle.setText(service.getTitle() != null ? service.getTitle() : "");
             textDescription.setText(service.getDescription() != null ? service.getDescription() : "");
@@ -102,10 +102,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
         EditText editHeure = dialog.findViewById(R.id.editHeure);
         EditText editLocalisation = dialog.findViewById(R.id.editLocalisation);
 
-        // Fermer le modal
         btnClose.setOnClickListener(x -> dialog.dismiss());
 
-        // DatePicker (inchangé)
+        // DatePicker (logique conservée)
         editDate.setOnClickListener(x -> {
             Calendar c = Calendar.getInstance();
             int year = c.get(Calendar.YEAR);
@@ -118,7 +117,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
             dpd.show();
         });
 
-        // TimePicker (inchangé)
+        // TimePicker (logique conservée)
         editHeure.setOnClickListener(x -> {
             Calendar c = Calendar.getInstance();
             int hour = c.get(Calendar.HOUR_OF_DAY);
@@ -130,7 +129,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
             tpd.show();
         });
 
-        // Postuler (LOGIQUE DE SAUVEGARDE AJOUTÉE)
+        // Logique de Postuler
         btnPostuler.setOnClickListener(x -> {
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();
@@ -146,15 +145,19 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             } else {
 
-                // 1. Créer l'objet Candidat
+                // 1. Créer l'objet Candidat avec le constructeur complet/par défaut
                 Candidate candidate = new Candidate(
-                        service.getId(),                // Utilise l'ID du service
-                        nom,
+                        -1,                            // id: Laissé à -1
+                        -1,                            // applicantId: Fixé par le ViewModel
+                        service.getId(),               // serviceId
                         prenom,
-                        date + " " + heure,             // Combine Date et Heure
+                        nom,
+                        date + " " + heure,
                         localisation,
                         phone,
-                        email
+                        email,
+                        null,                          // serviceTitle
+                        "PENDING"                      // status
                 );
 
                 // 2. ENREGISTRER la candidature via le ViewModel
