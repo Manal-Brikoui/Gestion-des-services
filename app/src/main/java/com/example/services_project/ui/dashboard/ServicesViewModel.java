@@ -16,27 +16,23 @@ import java.util.Map;
 
 public class ServicesViewModel extends AndroidViewModel {
 
-    // LiveData des services postés par l'utilisateur courant
     private final MutableLiveData<List<Service>> postedServices = new MutableLiveData<>(new ArrayList<>());
-
-    // LiveData pour stocker les notifications (candidatures reçues par l'utilisateur)
     private final MutableLiveData<List<Candidate>> notificationsLiveData = new MutableLiveData<>(new ArrayList<>());
-
-    private final HomeFragmentRepository repository;
+    private final HomeFragmentRepository repository; // Assurez-vous que cette classe est accessible
     private final UserSessionManager sessionManager;
-
-    // Map pour stocker la LiveData de la liste des candidats pour chaque service ID
     private final Map<Integer, MutableLiveData<List<Candidate>>> candidatesMap = new HashMap<>();
 
     public ServicesViewModel(@NonNull Application application) {
         super(application);
+        // Initialisation des dépendances
         repository = new HomeFragmentRepository(application.getApplicationContext());
         sessionManager = new UserSessionManager(application.getApplicationContext());
         loadPostedServices();
-        loadNotifications(); // Chargement initial des notifications
+        loadNotifications();
     }
 
     // ---------------- Services ----------------
+
     public LiveData<List<Service>> getPostedServices() {
         return postedServices;
     }
@@ -51,7 +47,6 @@ public class ServicesViewModel extends AndroidViewModel {
                     userServices.add(s);
                 }
             }
-            // Utilisation de postValue car nous sommes dans un Thread séparé
             postedServices.postValue(userServices);
         }).start();
     }
@@ -103,68 +98,84 @@ public class ServicesViewModel extends AndroidViewModel {
      * Initialise et charge si elle n'existe pas.
      */
     public LiveData<List<Candidate>> getCandidatesLiveData(int serviceId) {
-        // Crée une LiveData si elle n'existe pas pour cet ID de service
         if (!candidatesMap.containsKey(serviceId)) {
             MutableLiveData<List<Candidate>> liveData = new MutableLiveData<>();
             candidatesMap.put(serviceId, liveData);
-            loadCandidates(serviceId); // Charge les données initiales
+            loadCandidates(serviceId);
         }
         return candidatesMap.get(serviceId);
     }
 
     /**
      * Récupère la liste des candidats depuis le Repository et met à jour la LiveData.
-     * Cette méthode est essentielle pour le rafraîchissement manuel de SQLite.
      */
     private void loadCandidates(int serviceId) {
         new Thread(() -> {
+            // Suppose que getCandidatesForService est implémenté dans HomeFragmentRepository
             List<Candidate> list = repository.getCandidatesForService(serviceId);
             MutableLiveData<List<Candidate>> liveData = candidatesMap.get(serviceId);
             if (liveData != null) {
-                // postValue car nous sommes dans un Thread d'arrière-plan
                 liveData.postValue(list);
             }
         }).start();
     }
 
     /**
-     * Ajoute un candidat et déclenche le rafraîchissement des données du service correspondant
-     * et des notifications.
+     * Ajoute un candidat et déclenche le rafraîchissement.
      */
     public void addApplicant(int serviceId, Candidate candidate) {
         candidate.setServiceId(serviceId);
         new Thread(() -> {
-            // 1. Ajout du candidat dans la base de données
+            // Suppose que addCandidate est implémenté dans HomeFragmentRepository
             repository.addCandidate(candidate);
 
-            // 2. Rafraîchir la LiveData correspondante pour notifier le ApplicantsDialogFragment
             loadCandidates(serviceId);
-
-            // 3. Rafraîchir la LiveData des notifications pour mettre à jour NotificationsFragment
             loadNotifications();
         }).start();
     }
 
-    // ---------------- Notifications (NOUVEAU) ----------------
+    // ---------------- Notifications (Titre du service dynamique) ----------------
 
-    /**
-     * Retourne la LiveData pour les notifications (candidatures reçues pour les services de l'utilisateur).
-     */
     public LiveData<List<Candidate>> getNotificationsLiveData() {
         return notificationsLiveData;
     }
 
     /**
-     * Charge la liste complète des candidatures pour tous les services de l'utilisateur.
+     * Charge la liste des candidatures et enrichit chaque Candidate avec le titre du Service associé.
      */
     public void loadNotifications() {
         new Thread(() -> {
             int userId = getCurrentUserId();
-            // Utilise la nouvelle méthode du Repository pour obtenir toutes les candidatures pour les services de cet utilisateur.
-            List<Candidate> notifications = repository.getAllCandidatesForUserServices(userId);
+            List<Service> allServices = repository.getAllServices();
+            Map<Integer, String> serviceTitlesMap = new HashMap<>();
 
-            // Met à jour la LiveData des notifications.
-            notificationsLiveData.postValue(notifications);
+            // 1. Créer une Map des titres de service de l'utilisateur
+            for (Service s : allServices) {
+                if (s.getUserId() == userId) {
+                    serviceTitlesMap.put(s.getId(), s.getTitle());
+                }
+            }
+
+            // 2. Récupérer les candidatures brutes
+            List<Candidate> rawCandidates = repository.getAllCandidatesForUserServices(userId);
+            List<Candidate> finalNotifications = new ArrayList<>();
+
+            // 3. Fusionner (Assigner le titre du service)
+            for (Candidate candidate : rawCandidates) {
+                int serviceId = candidate.getServiceId();
+                String title = serviceTitlesMap.get(serviceId);
+
+                if (title != null) {
+                    // Assignation du titre dynamique
+                    candidate.setServiceTitle(title);
+                } else {
+                    candidate.setServiceTitle("Service Inconnu");
+                }
+                finalNotifications.add(candidate);
+            }
+
+            // 4. Mettre à jour la LiveData
+            notificationsLiveData.postValue(finalNotifications);
         }).start();
     }
 }
