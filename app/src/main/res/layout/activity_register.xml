@@ -35,12 +35,22 @@
             android:layout_marginBottom="24dp"
             android:textAlignment="center"/>
 
-        <!-- Nom -->
+        <!-- Prénom -->
         <EditText
-            android:id="@+id/edtName"
+            android:id="@+id/edtFirstName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nom complet"
+            android:hint="Prénom"
+            android:background="@drawable/edt_rounded"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Nom -->
+        <EditText
+            android:id="@+id/edtLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nom"
             android:background="@drawable/edt_rounded"
             android:padding="12dp"
             android:layout_marginBottom="12dp"/>

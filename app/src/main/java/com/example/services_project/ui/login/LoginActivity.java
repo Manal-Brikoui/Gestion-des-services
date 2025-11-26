@@ -3,14 +3,12 @@ package com.example.services_project.ui.login;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.example.services_project.R;
-import com.example.services_project.data.DatabaseHelper;
+import com.example.services_project.model.User;
 import com.example.services_project.ui.register.RegisterActivity;
 import com.example.services_project.ui.dashboard.DashboardActivity;
 import com.example.services_project.utils.UserSessionManager;
@@ -19,75 +17,63 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText edtEmail, edtPassword;
     private Button btnLogin, btnRegister;
-    private UserSessionManager sessionManager;
-    private DatabaseHelper dbHelper;
+    private UserSessionManager session;
+    private LoginViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // ⚡ Initialisation UI
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
 
-        sessionManager = new UserSessionManager(this);
-        dbHelper = new DatabaseHelper(this);
+        // ⚡ Session et ViewModel
+        session = new UserSessionManager(this);
+        viewModel = new LoginViewModel();
+        viewModel.init(this);
 
-        // Gestion du bouton Login
+        // 🔹 Bouton Connexion
         btnLogin.setOnClickListener(v -> {
             String email = edtEmail.getText().toString().trim();
             String password = edtPassword.getText().toString().trim();
 
-            if (!email.isEmpty() && !password.isEmpty()) {
-
-                if (dbHelper.checkUser(email, password)) {
-                    // Récupérer l'ID utilisateur
-                    int userId = getUserId(email);
-
-                    // Sauvegarder l'ID dans la session
-                    sessionManager.saveUserId(userId);
-
-                    Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-
-                    // Passage au dashboard
-                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                    intent.putExtra("userId", userId); // Passer l'ID utilisateur
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
-                }
-
-            } else {
+            if(email.isEmpty() || password.isEmpty()){
                 Toast.makeText(this, "Email et mot de passe requis", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // 🔹 Récupérer l'utilisateur depuis la BDD
+            User user = viewModel.getUser(email);
+
+            if(user == null) {
+                Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 🔹 Vérifier le mot de passe actuel (inclut les changements)
+            if(!user.getPassword().equals(password)) {
+                Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 🔹 Sauvegarder l'utilisateur dans la session
+            session.saveLoggedUser(user);
+
+            Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
+
+            // 🔹 Redirection vers Dashboard
+            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+            startActivity(intent);
+            finish();
         });
 
-        // Gestion du bouton Register
+        // 🔹 Bouton Créer un compte
         btnRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
         });
-    }
-
-    /**
-     * Récupère l'ID utilisateur depuis la BDD selon l'email
-     */
-    private int getUserId(String email) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(DatabaseHelper.TABLE_USERS,
-                new String[]{DatabaseHelper.COLUMN_ID},
-                DatabaseHelper.COLUMN_EMAIL + "=?",
-                new String[]{email},
-                null, null, null);
-
-        int id = -1;
-        if (cursor.moveToFirst()) {
-            id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID));
-        }
-        cursor.close();
-        db.close();
-        return id;
     }
 }

@@ -8,40 +8,55 @@ import android.widget.Toast;
 import android.content.Intent;
 
 import com.example.services_project.R;
+import com.example.services_project.model.User;
 import com.example.services_project.ui.login.LoginActivity;
+import com.example.services_project.utils.UserSessionManager;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText edtName, edtEmail, edtPassword;
+    private EditText edtFirstName, edtLastName, edtEmail, edtPassword;
     private Button btnRegister, btnBackToLogin;
     private RegisterViewModel viewModel = new RegisterViewModel();
+    private UserSessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        edtName = findViewById(R.id.edtName);
+        // Initialisation des champs
+        edtFirstName = findViewById(R.id.edtFirstName);
+        edtLastName = findViewById(R.id.edtLastName);
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
         btnRegister = findViewById(R.id.btnRegister);
         btnBackToLogin = findViewById(R.id.btnBackToLogin);
 
         viewModel.init(this);
+        sessionManager = new UserSessionManager(this);
 
         // Gestion du bouton "Créer un compte"
         btnRegister.setOnClickListener(v -> {
-            String name = edtName.getText().toString();
-            String email = edtEmail.getText().toString();
-            String password = edtPassword.getText().toString();
+            String firstName = edtFirstName.getText().toString().trim();
+            String lastName = edtLastName.getText().toString().trim();
+            String email = edtEmail.getText().toString().trim();
+            String password = edtPassword.getText().toString().trim();
 
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (viewModel.register(name, email, password)) {
+            // Création du User
+            User user = new User(firstName, lastName, email, password);
+
+            // Appel au ViewModel pour l'inscription
+            if (viewModel.register(user)) {
+                // Sauvegarder l'utilisateur dans la session
+                sessionManager.saveLoggedUser(user);
+
                 Toast.makeText(this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
+
                 // Redirection vers LoginActivity
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);

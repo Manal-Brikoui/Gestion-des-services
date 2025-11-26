@@ -1,16 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/profile_fragment"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:padding="20dp">
 
-    <TextView
-        android:id="@+id/tv_profile"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Profil"
-        android:layout_gravity="center"
-        android:textSize="20sp"
-        android:textColor="@android:color/black"/>
-</FrameLayout>
+        android:orientation="vertical">
+
+        <!-- Titre -->
+        <TextView
+            android:id="@+id/tvProfileTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mon Profil"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"/>
+
+        <!-- Nom complet -->
+        <TextView
+            android:id="@+id/tvUserFullName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nom complet"
+            android:textSize="18sp"
+            android:layout_marginTop="20dp"/>
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/tvUserEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textSize="16sp"/>
+
+        <!-- Ancien mot de passe -->
+        <EditText
+            android:id="@+id/etOldPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ancien mot de passe"
+            android:inputType="textPassword"
+            android:layout_marginTop="25dp"/>
+
+        <!-- Nouveau mot de passe -->
+        <EditText
+            android:id="@+id/etNewPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nouveau mot de passe"
+            android:inputType="textPassword"/>
+
+        <!-- Confirmer mot de passe -->
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirmer le mot de passe"
+            android:inputType="textPassword"/>
+
+        <!-- Bouton changer le mot de passe -->
+        <Button
+            android:id="@+id/btnChangePassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Changer le mot de passe"
+            android:layout_marginTop="20dp"/>
+
+        <!-- Bouton Déconnexion -->
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Déconnexion"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:layout_marginTop="30dp"/>
+
+    </LinearLayout>
+</ScrollView>
