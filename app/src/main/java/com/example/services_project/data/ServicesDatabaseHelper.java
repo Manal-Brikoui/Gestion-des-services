@@ -8,7 +8,8 @@ import com.example.services_project.R;
 public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
-    private static final int DB_VERSION = 27; // ✅ INCÉMENTER LA VERSION !
+    // 🛑 ATTENTION : Version incrémentée pour la mise à jour de la table
+    private static final int DB_VERSION = 28;
 
     public ServicesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -31,18 +32,19 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
                 "userId INTEGER DEFAULT 0" +
                 ")");
 
-        // ✅ Table candidates CORRIGÉE
+        // ✅ Table candidates MODIFIÉE
         db.execSQL("CREATE TABLE candidates (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "serviceId INTEGER, " +
-                "applicantId INTEGER, " + // ✅ AJOUTÉ : L'ID de l'utilisateur qui postule
+                "applicantId INTEGER, " +
                 "firstName TEXT, " +
                 "lastName TEXT, " +
-                "dateTime TEXT, " +
+                "dateTime TEXT, " + // Date/Heure souhaitée du Service (inchangée)
+                "applicationDate TEXT DEFAULT (DATETIME('now','localtime')), " + // ✅ NOUVEAU : Date de postulation ou de MAJ du statut
                 "location TEXT, " +
                 "phone TEXT, " +
                 "email TEXT," +
-                "status TEXT DEFAULT 'PENDING'" + // ✅ AJOUTÉ : Statut nécessaire pour les boutons (PENDING, ACCEPTED, REJECTED)
+                "status TEXT DEFAULT 'PENDING'" +
                 ")");
 
         // ------- SERVICES PAR DÉFAUT (images DRAWABLE) -------

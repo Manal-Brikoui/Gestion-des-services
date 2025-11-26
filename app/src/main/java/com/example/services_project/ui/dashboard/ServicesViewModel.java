@@ -10,6 +10,9 @@ import com.example.services_project.model.Service;
 import com.example.services_project.utils.UserSessionManager;
 import android.util.Log;
 
+import java.text.SimpleDateFormat; // 👈 AJOUTÉ
+import java.util.Date; // 👈 AJOUTÉ
+import java.util.Locale; // 👈 AJOUTÉ
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,13 +28,13 @@ public class ServicesViewModel extends AndroidViewModel {
 
     public ServicesViewModel(@NonNull Application application) {
         super(application);
-        repository = new HomeFragmentRepository(application.getApplicationContext());
+        repository =  new HomeFragmentRepository(application.getApplicationContext());
         sessionManager = new UserSessionManager(application.getApplicationContext());
         loadPostedServices();
         loadNotifications();
     }
 
-    // ---------------- SERVICES & USER ----------------
+    // ---------------- SERVICES & USER (inchangés) ----------------
 
     public LiveData<List<Service>> getPostedServices() {
         return postedServices;
@@ -49,27 +52,21 @@ public class ServicesViewModel extends AndroidViewModel {
         }).start();
     }
 
-    /** * ✅ CORRIGÉ : Méthode pour insérer un nouveau service.
-     * Fixe le userId avant l'insertion pour lier le service à l'utilisateur actuel.
-     */
     public void insertService(Service service) {
-        // ⚠️ CORRECTION CRITIQUE : Assurer que le service est lié à l'utilisateur connecté
         int currentUserId = getCurrentUserId();
         service.setUserId(currentUserId);
 
         new Thread(() -> {
             Log.d("VIEW_MODEL", "Insertion du service pour User ID: " + currentUserId);
             repository.insertService(service);
-            loadPostedServices(); // Rafraîchit l'affichage
+            loadPostedServices();
         }).start();
     }
 
-    /** * ✅ AJOUTÉ : Méthode pour modifier un service existant.
-     */
     public void updateService(Service service) {
         new Thread(() -> {
             repository.updateService(service);
-            loadPostedServices(); // Rafraîchit l'affichage
+            loadPostedServices();
         }).start();
     }
 
@@ -85,7 +82,7 @@ public class ServicesViewModel extends AndroidViewModel {
         }).start();
     }
 
-    // ---------------- Candidates ----------------
+    // ---------------- Candidates (Modifié) ----------------
 
     public LiveData<List<Candidate>> getCandidatesLiveData(int serviceId) {
         if (!candidatesMap.containsKey(serviceId)) {
@@ -110,6 +107,8 @@ public class ServicesViewModel extends AndroidViewModel {
         candidate.setServiceId(serviceId);
         candidate.setApplicantId(getCurrentUserId());
 
+        // La date de postulation sera enregistrée automatiquement dans la DB via le DEFAULT (DATETIME('now','localtime'))
+
         new Thread(() -> {
             repository.addCandidate(candidate);
             loadCandidates(serviceId);
@@ -131,14 +130,21 @@ public class ServicesViewModel extends AndroidViewModel {
             return;
         }
 
+        // ⭐️ LOGIQUE CLÉ : Générer la date/heure actuelle
+        // Format SQLite : YYYY-MM-DD HH:MM:SS
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String currentDateTime = sdf.format(new Date());
+
         new Thread(() -> {
-            repository.updateCandidateStatus(candidate.getId(), status);
+            // ✅ MODIFICATION : Appelle la méthode Repository pour mettre à jour le statut ET la date
+            repository.updateCandidateStatusWithDate(candidate.getId(), status, currentDateTime);
+
             loadCandidates(candidate.getServiceId());
             loadNotifications();
         }).start();
     }
 
-    // ---------------- Notifications ----------------
+    // ---------------- Notifications (inchangés) ----------------
 
     public LiveData<List<Candidate>> getNotificationsLiveData() {
         return notificationsLiveData;

@@ -78,7 +78,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             String status = candidate.getStatus();
 
             // ----------------------------------------------------
-            // ⭐️ LOGIQUE DE PERSONNALISATION DU TITRE
+            // ⭐️ LOGIQUE DE PERSONNALISATION DU TITRE (INCHANGÉE)
             // ----------------------------------------------------
             if (candidate.getApplicantId() == currentUserId) {
 
@@ -113,10 +113,26 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             // 1. Définir le message/titre personnalisé
             textNotificationMessage.setText(titleToDisplay);
 
-            // 2. Définir la date
-            String dateTime = candidate.getDateTime();
-            String dateOnly = dateTime.split(" ")[0]; // Prend seulement la date
-            textNotificationDate.setText(dateOnly);
+            // 2. Définir la date (FIX pour la date de notification)
+            // Nous utilisons la nouvelle colonne 'applicationDate' qui sera mise à jour
+            // lors de la postulation, l'acceptation ou le refus.
+            String notificationDateTime = candidate.getApplicationDate(); // 👈 MODIFICATION CLÉ
+
+            if (notificationDateTime != null) {
+                // Prend seulement la date (et potentiellement l'heure si vous voulez)
+                // Le format est probablement 'YYYY-MM-DD HH:MM:SS' de SQLite (DATETIME('now'))
+                String dateOnly;
+                if (notificationDateTime.contains(" ")) {
+                    dateOnly = notificationDateTime.split(" ")[0];
+                } else {
+                    dateOnly = notificationDateTime; // Si l'heure n'est pas présente
+                }
+                textNotificationDate.setText(dateOnly);
+            } else {
+                // Fallback si la date est nulle (ne devrait pas arriver avec DEFAULT('now') dans la DB)
+                textNotificationDate.setText("Date inconnue");
+            }
+
 
             // 3. Définir l'écouteur de clic
             itemView.setOnClickListener(v -> listener.onNotificationClick(candidate));
