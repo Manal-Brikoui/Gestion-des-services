@@ -30,14 +30,6 @@ public class ApplyDialogFragment extends DialogFragment {
     private int serviceId;
     private ServicesViewModel viewModel;
 
-    public static ApplyDialogFragment newInstance(int serviceId) {
-        ApplyDialogFragment fragment = new ApplyDialogFragment();
-        Bundle args = new Bundle();
-        args.putInt("serviceId", serviceId);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -56,7 +48,6 @@ public class ApplyDialogFragment extends DialogFragment {
         btnPostuler = view.findViewById(R.id.btnPostuler);
         btnClose = view.findViewById(R.id.btnClose);
 
-        // Récupération serviceId
         if (getArguments() != null) {
             serviceId = getArguments().getInt("serviceId");
         }
@@ -66,36 +57,76 @@ public class ApplyDialogFragment extends DialogFragment {
         // Fermer le modal
         btnClose.setOnClickListener(v -> dismiss());
 
-        // DatePicker
+        // ---------------------------------------------------
+        // DatePicker : interdit les dates passées
+        // ---------------------------------------------------
         editDate.setOnClickListener(v -> {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+            final Calendar today = Calendar.getInstance();
+            today.set(Calendar.HOUR_OF_DAY, 0);
+            today.set(Calendar.MINUTE, 0);
+            today.set(Calendar.SECOND, 0);
+            today.set(Calendar.MILLISECOND, 0);
+
+            int year = today.get(Calendar.YEAR);
+            int month = today.get(Calendar.MONTH);
+            int day = today.get(Calendar.DAY_OF_MONTH);
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                    (view1, year1, monthOfYear, dayOfMonth) -> {
-                        String selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
-                        editDate.setText(selectedDate);
+                    (view1, selectedYear, selectedMonth, selectedDay) -> {
+                        editDate.setText(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+                        editHeure.setText(""); // réinitialiser l'heure si date change
                     }, year, month, day);
+
+            // ⚡ Interdire les dates passées
+            datePickerDialog.getDatePicker().setMinDate(today.getTimeInMillis());
             datePickerDialog.show();
         });
 
-        // TimePicker
+        // ---------------------------------------------------
+        // TimePicker : interdit les heures passées si date = aujourd'hui
+        // ---------------------------------------------------
         editHeure.setOnClickListener(v -> {
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+            String dateText = editDate.getText().toString().trim();
+            if (dateText.isEmpty()) {
+                Toast.makeText(requireContext(), "Veuillez choisir une date d'abord", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            final Calendar now = Calendar.getInstance();
+            int hour = now.get(Calendar.HOUR_OF_DAY);
+            int minute = now.get(Calendar.MINUTE);
 
             TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
-                    (view12, hourOfDay, minute1) -> {
-                        String selectedTime = String.format("%02d:%02d", hourOfDay, minute1);
-                        editHeure.setText(selectedTime);
+                    (view12, selectedHour, selectedMinute) -> {
+                        String[] parts = dateText.split("/");
+                        int selDay = Integer.parseInt(parts[0]);
+                        int selMonth = Integer.parseInt(parts[1]) - 1;
+                        int selYear = Integer.parseInt(parts[2]);
+
+                        Calendar selectedDateTime = Calendar.getInstance();
+                        selectedDateTime.set(selYear, selMonth, selDay, selectedHour, selectedMinute);
+
+                        // ⚡ Vérifier si date = aujourd'hui
+                        Calendar today = Calendar.getInstance();
+                        if (selYear == today.get(Calendar.YEAR)
+                                && selMonth == today.get(Calendar.MONTH)
+                                && selDay == today.get(Calendar.DAY_OF_MONTH)) {
+
+                            if (selectedDateTime.before(now)) {
+                                Toast.makeText(requireContext(), "Vous ne pouvez pas choisir une heure passée", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }
+
+                        editHeure.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
                     }, hour, minute, true);
+
             timePickerDialog.show();
         });
 
+        // ---------------------------------------------------
         // Bouton Postuler
+        // ---------------------------------------------------
         btnPostuler.setOnClickListener(v -> {
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();
@@ -108,26 +139,25 @@ public class ApplyDialogFragment extends DialogFragment {
             if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || phone.isEmpty()
                     || date.isEmpty() || heure.isEmpty() || localisation.isEmpty()) {
                 Toast.makeText(requireContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
-            } else {
-                // Créer un candidat correctement avec serviceId
-                Candidate candidate = new Candidate(
-                        serviceId,                // <-- serviceId ajouté
-                        nom,
-                        prenom,
-                        date + " " + heure,
-                        localisation,
-                        phone,
-                        email
-                );
-
-                // Ajouter au ViewModel
-                viewModel.addApplicant(serviceId, candidate);
-
-                Toast.makeText(requireContext(),
-                        "Candidature envoyée pour : " + nom + " " + prenom,
-                        Toast.LENGTH_LONG).show();
-                dismiss();
+                return;
             }
+
+            Candidate candidate = new Candidate(
+                    serviceId,
+                    nom,
+                    prenom,
+                    date + " " + heure,
+                    localisation,
+                    phone,
+                    email
+            );
+
+            viewModel.addApplicant(serviceId, candidate);
+
+            Toast.makeText(requireContext(),
+                    "Candidature envoyée pour : " + nom + " " + prenom,
+                    Toast.LENGTH_LONG).show();
+            dismiss();
         });
 
         // Fond transparent
@@ -136,5 +166,14 @@ public class ApplyDialogFragment extends DialogFragment {
         }
 
         return view;
+    }
+
+    // Créer méthode statique pour créer un fragment avec serviceId
+    public static ApplyDialogFragment newInstance(int serviceId) {
+        ApplyDialogFragment fragment = new ApplyDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt("serviceId", serviceId);
+        fragment.setArguments(args);
+        return fragment;
     }
 }

@@ -10,7 +10,7 @@ import com.example.services_project.model.User;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "services.db";
-    private static final int DATABASE_VERSION = 12; // incrémenté pour mettre à jour la table
+    private static final int DATABASE_VERSION = 14; // incrémenté pour mettre à jour la table
 
     public static final String TABLE_USERS = "users";
     public static final String COLUMN_ID = "id";

@@ -48,7 +48,19 @@
             android:inputType="textPassword"
             android:background="@drawable/edt_rounded"
             android:padding="12dp"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="12dp"/>
+
+        <!-- 🔹 Mot de passe oublié ? -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mot de passe oublié ?"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp"
+            android:clickable="true"
+            android:focusable="true"/>
 
         <Button
             android:id="@+id/btnLogin"

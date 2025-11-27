@@ -27,7 +27,6 @@ public class ServiceDetailActivity extends AppCompatActivity {
     private Button applyButton;
 
     private ServicesViewModel viewModel;
-    // Déclarer l'ID du service ici pour la sécurité
     private int currentServiceId = -1;
 
     @Override
@@ -50,9 +49,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Service service = (Service) getIntent().getSerializableExtra("service");
 
         if (service != null) {
-            currentServiceId = service.getId(); // Stocker l'ID
+            currentServiceId = service.getId();
 
-            // Chargement image sécurisé
             try {
                 if (service.getImageUri() != null && !service.getImageUri().isEmpty()) {
                     Uri uri = Uri.parse(service.getImageUri());
@@ -67,7 +65,6 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 imageService.setImageResource(R.drawable.ic_haircut);
             }
 
-            // Remplissage des champs
             textCategory.setText(service.getCategory() != null ? service.getCategory() : "");
             textTitle.setText(service.getTitle() != null ? service.getTitle() : "");
             textDescription.setText(service.getDescription() != null ? service.getDescription() : "");
@@ -75,10 +72,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
             textLocation.setText("Localisation : " + (service.getLocation() != null ? service.getLocation() : ""));
         }
 
-        // Flèche retour
         buttonBack.setOnClickListener(v -> onBackPressed());
 
-        // Bouton "Postuler"
         applyButton.setOnClickListener(v -> showApplyDialog(service));
     }
 
@@ -104,32 +99,61 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
         btnClose.setOnClickListener(x -> dialog.dismiss());
 
-        // DatePicker (logique conservée)
+        // DatePicker : bloquer les dates passées
         editDate.setOnClickListener(x -> {
-            Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+            Calendar now = Calendar.getInstance();
+            int year = now.get(Calendar.YEAR);
+            int month = now.get(Calendar.MONTH);
+            int day = now.get(Calendar.DAY_OF_MONTH);
 
             DatePickerDialog dpd = new DatePickerDialog(ServiceDetailActivity.this,
-                    (view, y, m, d) -> editDate.setText(String.format("%02d/%02d/%04d", d, m + 1, y)),
+                    (view, y, m, d) -> {
+                        editDate.setText(String.format("%02d/%02d/%04d", d, m + 1, y));
+                        editHeure.setText(""); // Réinitialiser l'heure si date change
+                    },
                     year, month, day);
+
+            dpd.getDatePicker().setMinDate(System.currentTimeMillis());
             dpd.show();
         });
 
-        // TimePicker (logique conservée)
+        // TimePicker : bloquer les heures passées pour aujourd'hui
         editHeure.setOnClickListener(x -> {
-            Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+            String dateText = editDate.getText().toString().trim();
+            if(dateText.isEmpty()) {
+                Toast.makeText(ServiceDetailActivity.this, "Veuillez choisir une date d'abord", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Calendar now = Calendar.getInstance();
+            int hour = now.get(Calendar.HOUR_OF_DAY);
+            int minute = now.get(Calendar.MINUTE);
 
             TimePickerDialog tpd = new TimePickerDialog(ServiceDetailActivity.this,
-                    (view, h, m) -> editHeure.setText(String.format("%02d:%02d", h, m)),
-                    hour, minute, true);
+                    (view, h, m) -> {
+                        String[] parts = dateText.split("/");
+                        int selDay = Integer.parseInt(parts[0]);
+                        int selMonth = Integer.parseInt(parts[1]) - 1;
+                        int selYear = Integer.parseInt(parts[2]);
+
+                        Calendar selected = Calendar.getInstance();
+                        selected.set(selYear, selMonth, selDay, h, m);
+
+                        if(selYear == now.get(Calendar.YEAR) &&
+                                selMonth == now.get(Calendar.MONTH) &&
+                                selDay == now.get(Calendar.DAY_OF_MONTH) &&
+                                selected.before(now)) {
+                            Toast.makeText(ServiceDetailActivity.this, "Vous ne pouvez pas choisir une heure passée", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        editHeure.setText(String.format("%02d:%02d", h, m));
+                    }, hour, minute, true);
+
             tpd.show();
         });
 
-        // Logique de Postuler
+        // Postuler
         btnPostuler.setOnClickListener(x -> {
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();
@@ -144,23 +168,20 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 Toast.makeText(ServiceDetailActivity.this,
                         "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             } else {
-
-                // 1. Créer l'objet Candidat avec le constructeur complet/par défaut
                 Candidate candidate = new Candidate(
-                        -1,                            // id: Laissé à -1
-                        -1,                            // applicantId: Fixé par le ViewModel
-                        service.getId(),               // serviceId
+                        -1,                        // id
+                        -1,                        // applicantId
+                        service.getId(),           // serviceId
                         prenom,
                         nom,
                         date + " " + heure,
                         localisation,
                         phone,
                         email,
-                        null,                          // serviceTitle
-                        "PENDING"                      // status
+                        null,                      // serviceTitle
+                        "PENDING"                  // status
                 );
 
-                // 2. ENREGISTRER la candidature via le ViewModel
                 viewModel.addApplicant(service.getId(), candidate);
 
                 Toast.makeText(ServiceDetailActivity.this,

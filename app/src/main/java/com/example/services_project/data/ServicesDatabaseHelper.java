@@ -9,7 +9,7 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
     // 🛑 ATTENTION : Version incrémentée pour la mise à jour de la table
-    private static final int DB_VERSION = 28;
+    private static final int DB_VERSION = 30;
 
     public ServicesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

@@ -3,6 +3,7 @@ package com.example.services_project.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.services_project.data.DatabaseHelper;
 import com.example.services_project.model.User;
 
 public class UserSessionManager {
@@ -39,17 +40,27 @@ public class UserSessionManager {
     // ✔️ Récupérer toutes les infos de l'utilisateur
     // ----------------------------------------------------------
     public User getLoggedUser() {
+        int id = prefs.getInt(KEY_USER_ID, -1);
+        String firstName = prefs.getString(KEY_FIRST_NAME, null);
+        String lastName = prefs.getString(KEY_LAST_NAME, null);
+        String email = prefs.getString(KEY_EMAIL, null);
+        String password = prefs.getString(KEY_PASSWORD, null);
+
+        if (id == -1 || email == null) {
+            return null; // Aucun utilisateur connecté
+        }
+
         User user = new User();
-        user.setId(prefs.getInt(KEY_USER_ID, -1));
-        user.setFirstName(prefs.getString(KEY_FIRST_NAME, ""));
-        user.setLastName(prefs.getString(KEY_LAST_NAME, ""));
-        user.setEmail(prefs.getString(KEY_EMAIL, ""));
-        user.setPassword(prefs.getString(KEY_PASSWORD, ""));
+        user.setId(id);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setPassword(password);
         return user;
     }
 
     // ----------------------------------------------------------
-    // ✔️ Sauvegarder uniquement l'ID utilisateur (si tu veux)
+    // ✔️ Sauvegarder uniquement l'ID utilisateur
     // ----------------------------------------------------------
     public void saveUserId(int userId) {
         editor.putInt(KEY_USER_ID, userId).apply();
@@ -69,4 +80,25 @@ public class UserSessionManager {
         editor.clear();
         editor.apply();
     }
+
+    // ----------------------------------------------------------
+    // 🔹 Réinitialiser le mot de passe pour l'utilisateur connecté
+    // ----------------------------------------------------------
+    public boolean changePasswordForLoggedUser(String newPassword, Context context) {
+        User user = getLoggedUser();
+        if(user == null) return false; // Aucun utilisateur connecté
+
+        // Mise à jour dans la base de données
+        DatabaseHelper dbHelper = new DatabaseHelper(context);
+        boolean success = dbHelper.updatePassword(user.getEmail(), newPassword);
+
+        if(success){
+            // Mise à jour de la session
+            user.setPassword(newPassword);
+            saveLoggedUser(user);
+        }
+
+        return success;
+    }
+
 }

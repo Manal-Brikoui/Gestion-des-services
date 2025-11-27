@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Autre activité (inscription) -->
+        <!-- Activity inscription -->
         <activity
             android:name=".ui.register.RegisterActivity"
             android:exported="false" />
@@ -30,9 +30,14 @@
             android:name=".ui.dashboard.DashboardActivity"
             android:exported="false" />
 
-        <!-- Activity pour les détails du service -->
+        <!-- Activity détails service -->
         <activity
             android:name=".ui.dashboard.ServiceDetailActivity"
+            android:exported="false" />
+
+        <!-- Activity pour mot de passe oublié -->
+        <activity
+            android:name=".ui.login.ForgotPasswordActivity"
             android:exported="false" />
 
     </application>

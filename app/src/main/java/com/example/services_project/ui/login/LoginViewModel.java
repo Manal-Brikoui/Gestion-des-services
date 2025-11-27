@@ -20,4 +20,9 @@ public class LoginViewModel extends ViewModel {
     public User getUser(String email){
         return repository.getUser(email);
     }
+
+    // 🔹 Nouvelle méthode pour changer le mot de passe
+    public boolean changePassword(String email, String newPassword){
+        return repository.changePassword(email, newPassword);
+    }
 }

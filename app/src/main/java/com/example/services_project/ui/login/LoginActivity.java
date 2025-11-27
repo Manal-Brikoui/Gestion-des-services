@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
 
@@ -17,6 +18,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText edtEmail, edtPassword;
     private Button btnLogin, btnRegister;
+    private TextView tvForgotPassword;
     private UserSessionManager session;
     private LoginViewModel viewModel;
 
@@ -30,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword); // Nouveau
 
         // ⚡ Session et ViewModel
         session = new UserSessionManager(this);
@@ -49,13 +52,7 @@ public class LoginActivity extends AppCompatActivity {
             // 🔹 Récupérer l'utilisateur depuis la BDD
             User user = viewModel.getUser(email);
 
-            if(user == null) {
-                Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // 🔹 Vérifier le mot de passe actuel (inclut les changements)
-            if(!user.getPassword().equals(password)) {
+            if(user == null || !user.getPassword().equals(password)) {
                 Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -74,6 +71,12 @@ public class LoginActivity extends AppCompatActivity {
         // 🔹 Bouton Créer un compte
         btnRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
+        });
+
+        // 🔹 Mot de passe oublié
+        tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+            startActivity(intent);
         });
     }
 }
