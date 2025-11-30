@@ -79,8 +79,6 @@ public class MessageRepository {
 
     /**
      * Récupère l'historique complet des messages entre deux utilisateurs.
-     * C'est dans dbHelper.getMessages que la requête SQL filtre strictement
-     * la conversation pour éviter de voir les messages des autres (problème B-C).
      * @param user1Id L'ID du premier utilisateur (Utilisateur Courant).
      * @param user2Id L'ID du second utilisateur (Interlocuteur).
      * @return List<Message> représentant la conversation.
@@ -94,14 +92,36 @@ public class MessageRepository {
     // -------------------------------------------------------------------------
 
     /**
-     * Retourne la liste des utilisateurs avec qui l'utilisateur courant peut converser,
-     * en utilisant la logique de filtrage du DatabaseHelper.
+     * Retourne la liste des utilisateurs avec qui l'utilisateur courant peut converser.
      * @param currentUserId L'ID de l'utilisateur connecté.
      * @return List<User> des utilisateurs pour la boîte de réception.
      */
     public List<User> getRecentConversations(int currentUserId) {
-        // Cette ligne appelle dbHelper.getAllUsers(currentUserId) qui utilise WHERE id != ?
-        // pour exclure l'utilisateur connecté.
         return dbHelper.getAllUsers(currentUserId);
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. 🔔 GESTION DES MESSAGES NON LUS (NOUVEAU)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Récupère le nombre de messages non lus envoyés par l'expéditeur (senderId) à l'utilisateur courant (receiverId).
+     * @param senderId L'ID de l'utilisateur dans la liste de contacts.
+     * @param receiverId L'ID de l'utilisateur connecté.
+     * @return Le nombre de messages non lus.
+     */
+    public int getUnreadMessageCount(int senderId, int receiverId) {
+        return dbHelper.getUnreadMessageCount(senderId, receiverId);
+    }
+
+    /**
+     * Marque tous les messages non lus d'un utilisateur donné comme lus.
+     * Cette méthode doit être appelée lors de l'ouverture de ChatActivity.
+     * @param senderId L'ID de l'utilisateur dont on lit les messages.
+     * @param receiverId L'ID de l'utilisateur qui lit (utilisateur courant).
+     * @return Le nombre de messages marqués comme lus.
+     */
+    public int markMessagesAsRead(int senderId, int receiverId) {
+        return dbHelper.markMessagesAsRead(senderId, receiverId);
     }
 }

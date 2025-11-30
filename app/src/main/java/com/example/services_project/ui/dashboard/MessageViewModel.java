@@ -12,7 +12,7 @@ import com.example.services_project.model.User;
 
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService; // 💡 Import explicite pour la clarté
+import java.util.concurrent.ExecutorService;
 
 /**
  * ViewModel pour gérer les données de messagerie et la liste des utilisateurs.
@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService; // 💡 Import explicite pour la cl
 public class MessageViewModel extends AndroidViewModel {
 
     private static final String TAG = "MessageViewModel";
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(); // Renommé en 'executor' pour la cohérence
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final MessageRepository repository;
 
@@ -32,7 +32,6 @@ public class MessageViewModel extends AndroidViewModel {
 
     public MessageViewModel(@NonNull Application application) {
         super(application);
-        // Le repository est initialisé une seule fois
         this.repository = new MessageRepository(application);
     }
 
@@ -124,8 +123,46 @@ public class MessageViewModel extends AndroidViewModel {
 
             if (success) {
                 // IMPORTANT : Recharger la conversation après l'envoi pour mettre à jour l'UI
-                // (Note : Dans ChatActivity, nous appelons loadConversation après la réponse simulée)
                 loadConversation(targetUserId);
+            }
+        });
+    }
+
+    // ----------------------------------------------------------------------
+    // --- 🔔 NOUVEAU : GESTION DES MESSAGES NON LUS ---
+    // ----------------------------------------------------------------------
+
+    /**
+     * Récupère le nombre de messages non lus envoyés par l'expéditeur (targetUserId) à l'utilisateur courant.
+     * Cette méthode est appelée de manière synchrone par l'Adapter (via le Fragment).
+     * @param targetUserId L'ID de l'utilisateur qui a envoyé les messages (l'expéditeur B).
+     * @return Le nombre de messages non lus.
+     */
+    public int getUnreadMessageCount(int targetUserId) {
+        if (currentUserId == -1) {
+            return 0;
+        }
+        // L'appel au Repository (et au DatabaseHelper) est rapide et synchrone.
+        return repository.getUnreadMessageCount(targetUserId, currentUserId);
+    }
+
+    /**
+     * Marque tous les messages non lus de l'interlocuteur comme lus.
+     * Doit être appelée lors de l'ouverture de ChatActivity.
+     * @param targetUserId L'ID de l'interlocuteur (l'expéditeur B).
+     */
+    public void markMessagesAsRead(int targetUserId) {
+        if (currentUserId == -1) return;
+
+        executor.execute(() -> {
+            // Le targetUserId est l'expéditeur (SENDER) et currentUserId est le destinataire (RECEIVER).
+            int count = repository.markMessagesAsRead(targetUserId, currentUserId);
+
+            if (count > 0) {
+                Log.d(TAG, count + " messages de l'utilisateur " + targetUserId + " marqués comme lus.");
+
+                // Recharge la liste des utilisateurs pour mettre à jour le badge du Fragment UsersList
+                loadAllUsers();
             }
         });
     }

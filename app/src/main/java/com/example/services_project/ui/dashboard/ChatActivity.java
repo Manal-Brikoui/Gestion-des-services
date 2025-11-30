@@ -21,7 +21,6 @@ import com.example.services_project.model.Message; // Import du modèle Message
 import com.example.services_project.ui.adapter.MessageAdapter;
 
 import java.util.ArrayList;
-// Suppression des imports ExecutorService et Executors car plus utilisés
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -37,12 +36,11 @@ public class ChatActivity extends AppCompatActivity {
     private EditText inputMessage;
     private RecyclerView recyclerView;
 
-    // Suppression de : private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
     // --- Constantes de Session ---
     private static final String PREF_AUTH_FILE = "AUTH_PREFS";
     private static final String PREF_USER_ID_KEY = "CURRENT_USER_ID";
-    private static final int DEFAULT_USER_ID = 1;
+    // Utilisé -1 comme valeur par défaut, car 1 peut être un ID utilisateur valide.
+    private static final int DEFAULT_USER_ID = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +97,10 @@ public class ChatActivity extends AppCompatActivity {
         // 7. Charger l'historique au démarrage
         viewModel.loadConversation(targetUserId);
 
+        // 7.1. 🚨 NOUVEAU : Marquer les messages entrants de TARGET_USER comme lus.
+        // Cela met à jour la DB et recharge la liste des utilisateurs (UsersListFragment) via le ViewModel.
+        viewModel.markMessagesAsRead(targetUserId);
+
         // 8. Gestion du clic sur le bouton d'envoi
         buttonSend.setOnClickListener(v -> sendMessage());
     }
@@ -106,7 +108,6 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Suppression de : executor.shutdownNow();
     }
 
     @Override
@@ -125,24 +126,20 @@ public class ChatActivity extends AppCompatActivity {
         String content = inputMessage.getText().toString().trim();
 
         if (!content.isEmpty()) {
-            // 1. Envoyer le message de l'utilisateur courant (A -> B).
-            // L'UI sera mise à jour via l'Observer dans le ViewModel.
+            // Envoyer le message de l'utilisateur courant (A -> B).
             viewModel.sendMessage(targetUserId, content);
 
-            // 2. Effacer le champ de texte
+            // Effacer le champ de texte
             inputMessage.setText("");
-
-            // 🛑 Suppression de l'appel à simulateTargetReply();
         }
     }
-
-    // 🛑 Suppression de la méthode simulateTargetReply() complète
 
     /**
      * Méthode pour simuler la récupération de l'ID utilisateur à partir de SharedPreferences.
      */
     private int getCurrentUserIdFromSession() {
         SharedPreferences prefs = getSharedPreferences(PREF_AUTH_FILE, Context.MODE_PRIVATE);
-        return prefs.getInt(PREF_USER_ID_KEY, DEFAULT_USER_ID);
+        // Utiliser -1 pour être cohérent avec la vérification de session
+        return prefs.getInt(PREF_USER_ID_KEY, -1);
     }
 }

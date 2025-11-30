@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast; // Import ajouté pour le log de débogage si nécessaire
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,10 +25,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     private final OnUserClickListener listener;
 
     /**
-     * Interface pour gérer les clics sur les éléments de la liste.
+     * Interface pour gérer les clics sur les éléments de la liste et
+     * pour demander le nombre de messages non lus (pour le badge).
      */
     public interface OnUserClickListener {
         void onUserClick(User user);
+
+        /**
+         * Demande le compte des messages non lus envoyés par l'utilisateur cible au Fragment.
+         * @param targetUserId L'ID de l'utilisateur dans la liste (l'expéditeur).
+         * @return Le nombre de messages non lus.
+         */
+        int getUnreadCount(int targetUserId);
     }
 
     public UserAdapter(Context context, List<User> usersList, OnUserClickListener listener) {
@@ -39,7 +48,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate le layout pour un élément de la liste (item_user.xml)
+        // Assurez-vous d'avoir créé R.layout.item_user
         View view = LayoutInflater.from(context).inflate(R.layout.item_user, parent, false);
         return new UserViewHolder(view);
     }
@@ -51,10 +60,26 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         // 1. Définir le nom complet
         holder.textUserName.setText(user.getFullName());
 
-        // 2. Définir l'initiale pour l'avatar (méthode ajoutée à User.java)
+        // 2. Définir l'initiale pour l'avatar
         holder.textInitial.setText(user.getInitial());
 
-        // 3. Gérer le clic
+        // 3. 🔔 GESTION DU BADGE DE MESSAGES NON LUS (NOUVEAU)
+        if (listener != null) {
+            // Appelle la méthode dans UsersListFragment qui va interroger le ViewModel
+            int unreadCount = listener.getUnreadCount(user.getId());
+
+            if (unreadCount > 0) {
+                holder.textUnreadCount.setText(String.valueOf(unreadCount));
+                holder.textUnreadCount.setVisibility(View.VISIBLE); // Afficher le badge
+            } else {
+                holder.textUnreadCount.setVisibility(View.GONE); // Cacher le badge
+            }
+        } else {
+            // Sécurité si le listener n'est pas défini
+            holder.textUnreadCount.setVisibility(View.GONE);
+        }
+
+        // 4. Gérer le clic
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onUserClick(user);
@@ -82,12 +107,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     static class UserViewHolder extends RecyclerView.ViewHolder {
         TextView textInitial;
         TextView textUserName;
+        TextView textUnreadCount; // <-- NOUVEAU : Le TextView pour le badge
 
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Assurez-vous que ces IDs correspondent à ceux de item_user.xml
             textInitial = itemView.findViewById(R.id.textInitial);
             textUserName = itemView.findViewById(R.id.textUserName);
+            // 🎯 NOUVEL ID : Assurez-vous que R.id.textUnreadCount existe dans item_user.xml
+            textUnreadCount = itemView.findViewById(R.id.textUnreadCount);
         }
     }
 }

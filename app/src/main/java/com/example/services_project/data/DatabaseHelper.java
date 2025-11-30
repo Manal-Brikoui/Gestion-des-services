@@ -8,7 +8,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.example.services_project.model.User;
-import com.example.services_project.model.Message; // Assurez-vous d'importer votre modèle Message
+import com.example.services_project.model.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
     private static final String DATABASE_NAME = "services.db";
-    private static final int DATABASE_VERSION = 19; // Version pour inclure les MESSAGES
+    private static final int DATABASE_VERSION = 19;
 
     // --- Constantes TABLE_USERS ---
     public static final String TABLE_USERS = "users";
@@ -227,6 +227,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(MESSAGE_COLUMN_SENDER_ID, message.getSenderId());
         values.put(MESSAGE_COLUMN_RECEIVER_ID, message.getReceiverId());
         values.put(MESSAGE_COLUMN_CONTENT, message.getContent());
+        // L'état 'is_read' est par défaut 0 dans le schéma de table, pas besoin de le spécifier
 
         long result = db.insert(TABLE_MESSAGES, null, values);
         db.close();
@@ -268,5 +269,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return messageList;
+    }
+
+    // -------------------------------------------------------------------------
+    // 🔔 NOUVEAU : GESTION DES MESSAGES NON LUS
+    // -------------------------------------------------------------------------
+
+    /**
+     * Compte le nombre de messages non lus envoyés par l'expéditeur (senderId) à l'utilisateur courant (receiverId).
+     * @param senderId L'ID de l'utilisateur qui a envoyé les messages (B).
+     * @param receiverId L'ID de l'utilisateur courant qui reçoit (A).
+     * @return Le nombre de messages non lus.
+     */
+    public int getUnreadMessageCount(int senderId, int receiverId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int count = 0;
+
+        // Requête : messages où SENDER = B, RECEIVER = A, et IS_READ = 0 (false)
+        String query = "SELECT COUNT(*) FROM " + TABLE_MESSAGES +
+                " WHERE " + MESSAGE_COLUMN_SENDER_ID + " = ?" +
+                " AND " + MESSAGE_COLUMN_RECEIVER_ID + " = ?" +
+                " AND " + MESSAGE_COLUMN_IS_READ + " = 0";
+
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(senderId),
+                String.valueOf(receiverId)
+        });
+
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return count;
+    }
+
+    /**
+     * Met à jour tous les messages reçus d'un utilisateur donné comme étant lus (is_read = 1).
+     * Cette méthode doit être appelée lors de l'ouverture de la ChatActivity.
+     * @param senderId L'ID de l'utilisateur qui a envoyé les messages (B).
+     * @param receiverId L'ID de l'utilisateur courant qui les a lus (A).
+     * @return Le nombre de lignes mises à jour.
+     */
+    public int markMessagesAsRead(int senderId, int receiverId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(MESSAGE_COLUMN_IS_READ, 1); // Marquer comme lu
+
+        int rows = db.update(
+                TABLE_MESSAGES,
+                values,
+                MESSAGE_COLUMN_SENDER_ID + " = ? AND " + MESSAGE_COLUMN_RECEIVER_ID + " = ? AND " + MESSAGE_COLUMN_IS_READ + " = 0",
+                new String[]{String.valueOf(senderId), String.valueOf(receiverId)}
+        );
+        db.close();
+        return rows;
     }
 }
