@@ -1,0 +1,132 @@
+package com.example.services_project.ui.dashboard;
+
+import android.app.Application;
+import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.services_project.model.Message;
+import com.example.services_project.model.User;
+
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService; // 💡 Import explicite pour la clarté
+
+/**
+ * ViewModel pour gérer les données de messagerie et la liste des utilisateurs.
+ * Interagit avec MessageRepository.
+ */
+public class MessageViewModel extends AndroidViewModel {
+
+    private static final String TAG = "MessageViewModel";
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(); // Renommé en 'executor' pour la cohérence
+
+    private final MessageRepository repository;
+
+    private final MutableLiveData<List<User>> usersList = new MutableLiveData<>();
+    private final MutableLiveData<List<Message>> conversation = new MutableLiveData<>();
+
+    private int currentUserId = -1;
+
+    public MessageViewModel(@NonNull Application application) {
+        super(application);
+        // Le repository est initialisé une seule fois
+        this.repository = new MessageRepository(application);
+    }
+
+    // ----------------------------------------------------------------------
+    // --- NOUVEL AJOUT : ACCÈS AU REPOSITORY (pour simulation/tests) ---
+    // ----------------------------------------------------------------------
+
+    /**
+     * Permet d'accéder au Repository depuis l'Activity pour les opérations mock/simulation.
+     * @return L'instance de MessageRepository.
+     */
+    public MessageRepository getRepository() {
+        return repository;
+    }
+
+    // ----------------------------------------------------------------------
+    // --- GESTION DE L'UTILISATEUR COURANT ---
+    // ----------------------------------------------------------------------
+
+    public void setCurrentUserId(int userId) {
+        this.currentUserId = userId;
+        loadAllUsers();
+    }
+
+    public int getCurrentUserId() {
+        return currentUserId;
+    }
+
+    // ----------------------------------------------------------------------
+    // --- GESTION DES UTILISATEURS (Contacts / Boîte de réception) ---
+    // ----------------------------------------------------------------------
+
+    public void loadAllUsers() {
+        if (currentUserId == -1) {
+            Log.e(TAG, "loadAllUsers: currentUserId non défini.");
+            return;
+        }
+
+        executor.execute(() -> {
+            List<User> userList = repository.getRecentConversations(currentUserId);
+            usersList.postValue(userList);
+        });
+    }
+
+    public LiveData<List<User>> getUsersList() {
+        return usersList;
+    }
+
+    public User getUserById(int userId) {
+        // Exécuté sur le thread principal car cette méthode est synchrone dans le Repository
+        return repository.getUserById(userId);
+    }
+
+    // ----------------------------------------------------------------------
+    // --- GESTION DES MESSAGES (Conversation) ---
+    // ----------------------------------------------------------------------
+
+    public void loadConversation(int targetUserId) {
+        if (currentUserId == -1) return;
+
+        executor.execute(() -> {
+            List<Message> messages = repository.getMessages(currentUserId, targetUserId);
+            conversation.postValue(messages);
+        });
+    }
+
+    public LiveData<List<Message>> getConversation() {
+        return conversation;
+    }
+
+    /**
+     * Envoie un nouveau message et recharge la conversation.
+     * @param targetUserId ID du destinataire.
+     * @param content Contenu du message.
+     */
+    public void sendMessage(int targetUserId, String content) {
+        if (currentUserId == -1 || content == null || content.trim().isEmpty()) return;
+
+        final String finalContent = content.trim();
+
+        executor.execute(() -> {
+            Message newMessage = new Message(currentUserId, targetUserId, finalContent);
+
+            Log.d(TAG, "Message SENT by User: " + currentUserId +
+                    " to Target: " + targetUserId +
+                    " Content: " + finalContent);
+
+            boolean success = repository.sendMessage(newMessage);
+
+            if (success) {
+                // IMPORTANT : Recharger la conversation après l'envoi pour mettre à jour l'UI
+                // (Note : Dans ChatActivity, nous appelons loadConversation après la réponse simulée)
+                loadConversation(targetUserId);
+            }
+        });
+    }
+}

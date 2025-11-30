@@ -8,8 +8,14 @@ import com.example.services_project.R;
 public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
-    // 🛑 ATTENTION : Version incrémentée pour la mise à jour de la table
-    private static final int DB_VERSION = 30;
+    // Maintenir la version à 40 ou l'incrémenter si vous avez fait des changements récents ici
+    private static final int DB_VERSION = 40;
+
+    // -------------------------------------------------------------------------
+    // Suppression des constantes de la table MESSAGES (TABLE_MESSAGES, CREATE_TABLE_MESSAGES, etc.)
+    // pour éviter la duplication avec DatabaseHelper.java
+    // -------------------------------------------------------------------------
+    // R.drawable.* est supposé exister dans votre projet.
 
     public ServicesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -18,7 +24,7 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        // Table services
+        // Table services (EXISTANTE)
         db.execSQL("CREATE TABLE services (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "category TEXT, " +
@@ -29,30 +35,32 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
                 "location TEXT, " +
                 "price TEXT, " +
                 "moreDetails TEXT, " +
-                "userId INTEGER DEFAULT 0" +
+                "userId INTEGER DEFAULT 0" + // ID de l'auteur du service
                 ")");
 
-        // ✅ Table candidates MODIFIÉE
+        // Table candidates (EXISTANTE / MODIFIÉE)
         db.execSQL("CREATE TABLE candidates (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "serviceId INTEGER, " +
                 "applicantId INTEGER, " +
                 "firstName TEXT, " +
                 "lastName TEXT, " +
-                "dateTime TEXT, " + // Date/Heure souhaitée du Service (inchangée)
-                "applicationDate TEXT DEFAULT (DATETIME('now','localtime')), " + // ✅ NOUVEAU : Date de postulation ou de MAJ du statut
+                "dateTime TEXT, " +
+                "applicationDate TEXT DEFAULT (DATETIME('now','localtime')), " +
                 "location TEXT, " +
                 "phone TEXT, " +
                 "email TEXT," +
                 "status TEXT DEFAULT 'PENDING'" +
                 ")");
 
-        // ------- SERVICES PAR DÉFAUT (images DRAWABLE) -------
+        // 🛑 SUPPRESSION DE LA CRÉATION DE LA TABLE MESSAGES : db.execSQL(CREATE_TABLE_MESSAGES);
+
+        // ------- SERVICES PAR DÉFAUT -------
         insertDefaultServices(db);
     }
 
     private void insertDefaultServices(SQLiteDatabase db) {
-        // ... (Contenu de insertDefaultServices inchangé) ...
+        // Le contenu de insertDefaultServices reste inchangé, car il est correct.
         db.execSQL("INSERT INTO services (category, title, description, imageResId, location, price, moreDetails, userId) VALUES " +
                 "('COIFFURE', 'Coupe de Cheveux', 'Coupe de cheveux avec soins du cuir chevelu', " +
                 R.drawable.ic_haircut + ", 'Salon Paris 12', '50€', 'Inclus shampoing et massage du cuir chevelu', 0)");
@@ -89,9 +97,16 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Supprime tables et recrée tout
-        db.execSQL("DROP TABLE IF EXISTS services");
-        db.execSQL("DROP TABLE IF EXISTS candidates");
-        onCreate(db);
+
+        // 🛑 SUPPRESSION de la logique de migration des MESSAGES ici
+        // if (oldVersion < 40) { db.execSQL(CREATE_TABLE_MESSAGES); }
+
+        // Logique de suppression totale (si l'ancienne version est < 39)
+        if (oldVersion < 39) {
+            db.execSQL("DROP TABLE IF EXISTS services");
+            db.execSQL("DROP TABLE IF EXISTS candidates");
+            // 🛑 SUPPRESSION de la suppression de la table MESSAGES : db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
+            onCreate(db);
+        }
     }
 }

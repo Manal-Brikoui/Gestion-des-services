@@ -10,7 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <!-- Activity principale (écran de connexion) -->
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true">
@@ -20,25 +19,28 @@
             </intent-filter>
         </activity>
 
-        <!-- Activity inscription -->
         <activity
             android:name=".ui.register.RegisterActivity"
             android:exported="false" />
 
-        <!-- Dashboard après login -->
         <activity
             android:name=".ui.dashboard.DashboardActivity"
             android:exported="false" />
 
-        <!-- Activity détails service -->
         <activity
             android:name=".ui.dashboard.ServiceDetailActivity"
             android:exported="false" />
 
-        <!-- Activity pour mot de passe oublié -->
         <activity
             android:name=".ui.login.ForgotPasswordActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.dashboard.ChatActivity"
+            android:exported="false"
+            android:label="Chat"
+            android:parentActivityName=".ui.dashboard.DashboardActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
     </application>
 

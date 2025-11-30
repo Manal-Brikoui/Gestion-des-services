@@ -5,24 +5,28 @@ import androidx.lifecycle.ViewModel;
 import com.example.services_project.model.User;
 
 public class LoginViewModel extends ViewModel {
+
     private LoginRepository repository;
 
-    public void init(Context context){
-        repository = new LoginRepository(context);
+    // Initialisation du repository
+    public void init(Context context) {
+        if (repository == null) {   // Évite la réinitialisation
+            repository = new LoginRepository(context);
+        }
     }
 
-    // Connexion
-    public boolean login(String email, String password){
+    // Connexion (email + password)
+    public boolean login(String email, String password) {
         return repository.login(email, password);
     }
 
-    // Récupérer l'utilisateur complet pour la session
-    public User getUser(String email){
+    // Récupérer l'utilisateur complet par email
+    public User getUser(String email) {
         return repository.getUser(email);
     }
 
-    // 🔹 Nouvelle méthode pour changer le mot de passe
-    public boolean changePassword(String email, String newPassword){
+    // Modifier le mot de passe de l'utilisateur correspondant à l'email
+    public boolean changePassword(String email, String newPassword) {
         return repository.changePassword(email, newPassword);
     }
 }

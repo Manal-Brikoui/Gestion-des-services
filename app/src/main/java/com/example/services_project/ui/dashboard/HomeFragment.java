@@ -31,6 +31,7 @@ public class HomeFragment extends Fragment {
 
     private EditText searchBar;
     private ImageView filterIcon;
+    private ImageView messageIcon; // 👈 NOUVELLE DÉCLARATION
 
     private final List<Service> allServices = new ArrayList<>();
 
@@ -49,6 +50,7 @@ public class HomeFragment extends Fragment {
 
         searchBar = root.findViewById(R.id.searchBar);
         filterIcon = root.findViewById(R.id.filterIcon);
+        messageIcon = root.findViewById(R.id.messageIcon); // 👈 INITIALISATION
 
         // ----------------------------
         // INIT ADAPTER (vide)
@@ -87,15 +89,27 @@ public class HomeFragment extends Fragment {
         });
 
         // ----------------------------
-        // FILTRE PAR CATÉGORIE
+        // FILTRE PAR CATÉGORIE (EXISTANT)
         // ----------------------------
         filterIcon.setOnClickListener(v -> showFilterDialog());
+
+        // ----------------------------
+        // 🔔 BOUTON MESSAGERIE (NOUVEAU)
+        // ----------------------------
+        messageIcon.setOnClickListener(v -> {
+            // Remplace le fragment actuel (HomeFragment) par le nouveau fragment de liste des utilisateurs.
+            // R.id.nav_host_fragment est souvent l'ID du conteneur du fragment dans l'Activity hôte.
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.dashboard_container, new UsersListFragment())
+                    .addToBackStack(null) // Permet de revenir à HomeFragment avec le bouton Retour
+                    .commit();
+        });
 
         return root;
     }
 
     // -----------------------------------------------------
-    // 🔍 FILTRAGE PAR MOT-CLÉ
+    // 🔍 FILTRAGE PAR MOT-CLÉ (EXISTANT)
     // -----------------------------------------------------
     private void filterByText(String query) {
         if (query == null) query = "";
@@ -117,7 +131,7 @@ public class HomeFragment extends Fragment {
     }
 
     // -----------------------------------------------------
-    // 🔍 FILTRAGE PAR CATÉGORIE
+    // 🔍 FILTRAGE PAR CATÉGORIE (EXISTANT)
     // -----------------------------------------------------
     private void showFilterDialog() {
 
