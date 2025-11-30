@@ -17,13 +17,15 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.services_project.R;
 import com.example.services_project.model.Candidate;
 import com.example.services_project.model.Service;
+import com.example.services_project.model.User;  // Import du modèle User pour obtenir le nom et prénom
+import com.example.services_project.data.DatabaseHelper; // Import de DatabaseHelper
 
 import java.util.Calendar;
 
 public class ServiceDetailActivity extends AppCompatActivity {
 
     private ImageView imageService, buttonBack;
-    private TextView textCategory, textTitle, textDescription, textPrice, textLocation;
+    private TextView textCategory, textTitle, textDescription, textPrice, textLocation, textPostedBy;
     private Button applyButton;
 
     private ServicesViewModel viewModel;
@@ -43,6 +45,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         textDescription = findViewById(R.id.textDescriptionDetail);
         textPrice = findViewById(R.id.textPriceDetail);
         textLocation = findViewById(R.id.textLocationDetail);
+        textPostedBy = findViewById(R.id.textPostedBy); // Ajout du TextView pour afficher le nom et prénom
         applyButton = findViewById(R.id.buttonApply);
 
         // Récupération du service
@@ -70,11 +73,25 @@ public class ServiceDetailActivity extends AppCompatActivity {
             textDescription.setText(service.getDescription() != null ? service.getDescription() : "");
             textPrice.setText("Tarif : " + (service.getPrice() != null ? service.getPrice() : ""));
             textLocation.setText("Localisation : " + (service.getLocation() != null ? service.getLocation() : ""));
+
+            // Affichage du nom de la personne qui a posté le service
+            User user = getUserById(service.getUserId()); // Récupérer l'utilisateur par son ID
+            if (user != null) {
+                textPostedBy.setText("Posté par : " + user.getFullName()); // Afficher le nom complet de l'utilisateur
+            } else {
+                textPostedBy.setText("Posté par : Inconnu");
+            }
         }
 
         buttonBack.setOnClickListener(v -> onBackPressed());
 
         applyButton.setOnClickListener(v -> showApplyDialog(service));
+    }
+
+    // Méthode pour récupérer un utilisateur par son ID
+    private User getUserById(int userId) {
+        DatabaseHelper dbHelper = new DatabaseHelper(this); // Créez un objet DatabaseHelper
+        return dbHelper.getUserById(userId); // Appelle la méthode getUserById de DatabaseHelper pour récupérer l'utilisateur
     }
 
     private void showApplyDialog(Service service) {
@@ -120,7 +137,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         // TimePicker : bloquer les heures passées pour aujourd'hui
         editHeure.setOnClickListener(x -> {
             String dateText = editDate.getText().toString().trim();
-            if(dateText.isEmpty()) {
+            if (dateText.isEmpty()) {
                 Toast.makeText(ServiceDetailActivity.this, "Veuillez choisir une date d'abord", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -139,7 +156,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         Calendar selected = Calendar.getInstance();
                         selected.set(selYear, selMonth, selDay, h, m);
 
-                        if(selYear == now.get(Calendar.YEAR) &&
+                        if (selYear == now.get(Calendar.YEAR) &&
                                 selMonth == now.get(Calendar.MONTH) &&
                                 selDay == now.get(Calendar.DAY_OF_MONTH) &&
                                 selected.before(now)) {

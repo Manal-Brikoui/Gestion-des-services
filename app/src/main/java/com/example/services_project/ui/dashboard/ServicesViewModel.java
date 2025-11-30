@@ -10,9 +10,9 @@ import com.example.services_project.model.Service;
 import com.example.services_project.utils.UserSessionManager;
 import android.util.Log;
 
-import java.text.SimpleDateFormat; // 👈 AJOUTÉ
-import java.util.Date; // 👈 AJOUTÉ
-import java.util.Locale; // 👈 AJOUTÉ
+import java.text.SimpleDateFormat; // 📅
+import java.util.Date; // 📅
+import java.util.Locale; // 📅
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,11 +108,10 @@ public class ServicesViewModel extends AndroidViewModel {
         candidate.setApplicantId(getCurrentUserId());
 
         // La date de postulation sera enregistrée automatiquement dans la DB via le DEFAULT (DATETIME('now','localtime'))
-
         new Thread(() -> {
             repository.addCandidate(candidate);
             loadCandidates(serviceId);
-            loadNotifications();
+            loadNotifications();  // Maj des notifications après ajout du candidat
         }).start();
     }
 
@@ -131,16 +130,14 @@ public class ServicesViewModel extends AndroidViewModel {
         }
 
         // ⭐️ LOGIQUE CLÉ : Générer la date/heure actuelle
-        // Format SQLite : YYYY-MM-DD HH:MM:SS
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String currentDateTime = sdf.format(new Date());
 
         new Thread(() -> {
             // ✅ MODIFICATION : Appelle la méthode Repository pour mettre à jour le statut ET la date
             repository.updateCandidateStatusWithDate(candidate.getId(), status, currentDateTime);
-
             loadCandidates(candidate.getServiceId());
-            loadNotifications();
+            loadNotifications(); // Maj des notifications après mise à jour du statut
         }).start();
     }
 

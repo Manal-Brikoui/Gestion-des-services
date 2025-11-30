@@ -34,7 +34,7 @@
             android:contentDescription="Messagerie"
             android:clickable="true"
             android:focusable="true"
-            app:tint="#4CAF50" />
+            app:tint="#000000" />
 
     </RelativeLayout>
 

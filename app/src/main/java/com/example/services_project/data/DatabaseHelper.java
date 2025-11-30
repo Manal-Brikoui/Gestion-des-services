@@ -17,7 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
     private static final String DATABASE_NAME = "services.db";
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 23;
 
     // --- Constantes TABLE_USERS ---
     public static final String TABLE_USERS = "users";
@@ -28,7 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PASSWORD = "password";
 
     private static final String CREATE_TABLE_USERS =
-            "CREATE TABLE " + TABLE_USERS + " (" +
+            "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
                     COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COLUMN_FIRST_NAME + " TEXT, " +
                     COLUMN_LAST_NAME + " TEXT, " +
@@ -36,9 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_PASSWORD + " TEXT" +
                     ");";
 
-    // -------------------------------------------------------------------------
-    // CONSTANTES ET TABLE MESSAGES
-    // -------------------------------------------------------------------------
+    // --- Constantes TABLE_MESSAGES ---
     public static final String TABLE_MESSAGES = "messages";
     public static final String MESSAGE_COLUMN_ID = "id";
     public static final String MESSAGE_COLUMN_SENDER_ID = "sender_id";
@@ -48,13 +46,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String MESSAGE_COLUMN_IS_READ = "is_read";
 
     private static final String CREATE_TABLE_MESSAGES =
-            "CREATE TABLE " + TABLE_MESSAGES + " (" +
+            "CREATE TABLE IF NOT EXISTS " + TABLE_MESSAGES + " (" +
                     MESSAGE_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     MESSAGE_COLUMN_SENDER_ID + " INTEGER NOT NULL, " +
                     MESSAGE_COLUMN_RECEIVER_ID + " INTEGER NOT NULL, " +
                     MESSAGE_COLUMN_CONTENT + " TEXT NOT NULL, " +
                     MESSAGE_COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
-                    MESSAGE_COLUMN_IS_READ + " INTEGER DEFAULT 0, " + // 0=false, 1=true
+                    MESSAGE_COLUMN_IS_READ + " INTEGER DEFAULT 0, " +
                     "FOREIGN KEY(" + MESSAGE_COLUMN_SENDER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + ")," +
                     "FOREIGN KEY(" + MESSAGE_COLUMN_RECEIVER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + ")" +
                     ");";
@@ -74,29 +72,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Creating tables in " + DATABASE_NAME);
         db.execSQL(CREATE_TABLE_USERS);
         db.execSQL(CREATE_TABLE_MESSAGES);
-        // TODO: Ajoutez ici la création de toutes vos autres tables (Services, Candidate, etc.)
+        // TODO: Ajoutez ici la création d'autres tables si nécessaire
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
 
-        // Logique pour ajouter la table MESSAGES si l'ancienne version est < 19
-        if (oldVersion < 19) {
-            db.execSQL(CREATE_TABLE_MESSAGES);
-        }
+        // Supprime les tables existantes si nécessaire
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 
-        // Ancienne logique de suppression (si nécessaire pour les mises à jour majeures)
-        if (newVersion > oldVersion && oldVersion < 18) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-            onCreate(db);
-        }
+        // Crée à nouveau toutes les tables
+        onCreate(db);
     }
 
     // -------------------------------------------------------------------------
     // GESTION DES UTILISATEURS (CRUD)
     // -------------------------------------------------------------------------
-
     public boolean insertUser(String firstName, String lastName, String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -125,8 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean checkUser(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
-                "SELECT " + COLUMN_ID +
-                        " FROM " + TABLE_USERS +
+                "SELECT " + COLUMN_ID + " FROM " + TABLE_USERS +
                         " WHERE " + COLUMN_EMAIL + "=? AND " + COLUMN_PASSWORD + "=?",
                 new String[]{email, password}
         );
@@ -175,14 +167,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return user;
     }
 
-    /**
-     * Récupère tous les utilisateurs sauf l'utilisateur courant (filtrage pour la liste de contacts).
-     */
     public List<User> getAllUsers(int currentUserId) {
         List<User> userList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
-                "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_ID + " != ?", // Exclusion de l'utilisateur courant
+                "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_ID + " != ?",
                 new String[]{String.valueOf(currentUserId)}
         );
 
@@ -206,12 +195,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_PASSWORD, newPassword);
 
-        int rows = db.update(
-                TABLE_USERS,
-                values,
-                COLUMN_EMAIL + "=?",
-                new String[]{email}
-        );
+        int rows = db.update(TABLE_USERS, values, COLUMN_EMAIL + "=?", new String[]{email});
         db.close();
         return rows > 0;
     }
@@ -219,29 +203,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // -------------------------------------------------------------------------
     // GESTION DES MESSAGES (CRUD)
     // -------------------------------------------------------------------------
-
     public long insertMessage(Message message) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-
         values.put(MESSAGE_COLUMN_SENDER_ID, message.getSenderId());
         values.put(MESSAGE_COLUMN_RECEIVER_ID, message.getReceiverId());
         values.put(MESSAGE_COLUMN_CONTENT, message.getContent());
-        // L'état 'is_read' est par défaut 0 dans le schéma de table, pas besoin de le spécifier
 
         long result = db.insert(TABLE_MESSAGES, null, values);
         db.close();
         return result;
     }
 
-    /**
-     * Récupère l'historique des messages échangés UNIQUEMENT entre user1Id et user2Id.
-     */
     public List<Message> getMessages(int user1Id, int user2Id) {
         List<Message> messageList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        // Requête pour sélectionner les messages entre les deux utilisateurs, triés par TIMESTAMP
         String query = "SELECT * FROM " + TABLE_MESSAGES +
                 " WHERE (" + MESSAGE_COLUMN_SENDER_ID + " = ? AND " + MESSAGE_COLUMN_RECEIVER_ID + " = ?)" +
                 " OR (" + MESSAGE_COLUMN_SENDER_ID + " = ? AND " + MESSAGE_COLUMN_RECEIVER_ID + " = ?)" +
@@ -271,57 +248,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return messageList;
     }
 
-    // -------------------------------------------------------------------------
-    // 🔔 NOUVEAU : GESTION DES MESSAGES NON LUS
-    // -------------------------------------------------------------------------
-
-    /**
-     * Compte le nombre de messages non lus envoyés par l'expéditeur (senderId) à l'utilisateur courant (receiverId).
-     * @param senderId L'ID de l'utilisateur qui a envoyé les messages (B).
-     * @param receiverId L'ID de l'utilisateur courant qui reçoit (A).
-     * @return Le nombre de messages non lus.
-     */
     public int getUnreadMessageCount(int senderId, int receiverId) {
         SQLiteDatabase db = this.getReadableDatabase();
         int count = 0;
-
-        // Requête : messages où SENDER = B, RECEIVER = A, et IS_READ = 0 (false)
         String query = "SELECT COUNT(*) FROM " + TABLE_MESSAGES +
-                " WHERE " + MESSAGE_COLUMN_SENDER_ID + " = ?" +
-                " AND " + MESSAGE_COLUMN_RECEIVER_ID + " = ?" +
-                " AND " + MESSAGE_COLUMN_IS_READ + " = 0";
+                " WHERE " + MESSAGE_COLUMN_SENDER_ID + " = ? AND " +
+                MESSAGE_COLUMN_RECEIVER_ID + " = ? AND " +
+                MESSAGE_COLUMN_IS_READ + " = 0";
 
-        Cursor cursor = db.rawQuery(query, new String[]{
-                String.valueOf(senderId),
-                String.valueOf(receiverId)
-        });
-
-        if (cursor.moveToFirst()) {
-            count = cursor.getInt(0);
-        }
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(senderId), String.valueOf(receiverId)});
+        if (cursor.moveToFirst()) count = cursor.getInt(0);
         cursor.close();
         db.close();
         return count;
     }
 
-    /**
-     * Met à jour tous les messages reçus d'un utilisateur donné comme étant lus (is_read = 1).
-     * Cette méthode doit être appelée lors de l'ouverture de la ChatActivity.
-     * @param senderId L'ID de l'utilisateur qui a envoyé les messages (B).
-     * @param receiverId L'ID de l'utilisateur courant qui les a lus (A).
-     * @return Le nombre de lignes mises à jour.
-     */
     public int markMessagesAsRead(int senderId, int receiverId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(MESSAGE_COLUMN_IS_READ, 1); // Marquer comme lu
+        values.put(MESSAGE_COLUMN_IS_READ, 1);
 
-        int rows = db.update(
-                TABLE_MESSAGES,
-                values,
+        int rows = db.update(TABLE_MESSAGES, values,
                 MESSAGE_COLUMN_SENDER_ID + " = ? AND " + MESSAGE_COLUMN_RECEIVER_ID + " = ? AND " + MESSAGE_COLUMN_IS_READ + " = 0",
-                new String[]{String.valueOf(senderId), String.valueOf(receiverId)}
-        );
+                new String[]{String.valueOf(senderId), String.valueOf(receiverId)});
         db.close();
         return rows;
     }
