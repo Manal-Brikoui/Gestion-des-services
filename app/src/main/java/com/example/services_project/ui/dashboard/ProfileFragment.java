@@ -29,6 +29,8 @@ import com.example.services_project.utils.UserSessionManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProfileFragment extends Fragment {
 
@@ -178,6 +180,12 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
+        // Vérification du mot de passe
+        if (!isValidPassword(newPwd)) {
+            Toast.makeText(getContext(), "❌ Le mot de passe doit contenir au moins une lettre majuscule, un chiffre et un caractère spécial.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (newPwd.length() < 4) {
             Toast.makeText(getContext(), "❌ Mot de passe trop court (min 4 caractères)", Toast.LENGTH_SHORT).show();
             return;
@@ -273,4 +281,13 @@ public class ProfileFragment extends Fragment {
 
         dialog.show();
     }
+
+    // Validation du mot de passe
+    private boolean isValidPassword(String password) {
+        String passwordPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{6,}$";
+        Pattern pattern = Pattern.compile(passwordPattern);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
 }
+

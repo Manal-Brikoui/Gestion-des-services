@@ -13,6 +13,9 @@ import com.example.services_project.R;
 import com.example.services_project.utils.UserSessionManager;
 import com.example.services_project.model.User;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private EditText edtNewPassword, edtConfirmPassword;
@@ -64,6 +67,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 return;
             }
 
+            // Vérification du mot de passe
+            if (!isValidPassword(newPwd)) {
+                Toast.makeText(this, "Le mot de passe doit contenir au moins une lettre majuscule, un chiffre et un caractère spécial.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (newPwd.length() < 4) {
                 Toast.makeText(this, "Le mot de passe doit contenir au moins 4 caractères", Toast.LENGTH_SHORT).show();
                 return;
@@ -94,5 +103,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Méthode pour vérifier que le mot de passe contient au moins une lettre majuscule, un chiffre et un caractère spécial
+    private boolean isValidPassword(String password) {
+        // Expression régulière pour vérifier les exigences du mot de passe
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{6,}$";
+        Pattern pattern = Pattern.compile(passwordPattern);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
     }
 }

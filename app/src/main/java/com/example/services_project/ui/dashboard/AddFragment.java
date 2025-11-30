@@ -138,7 +138,7 @@ public class AddFragment extends DialogFragment {
         } else {
             // Pas de nouvelle image → garder l’ancienne
             localPath = currentImageUri != null ? currentImageUri.toString() : null;
-            imageResId = (localPath == null) ? R.drawable.ic_haircut : 0;
+            imageResId = (localPath == null) ? R.drawable.ic_noimage : 0;
         }
 
         int userId = getCurrentUserId();

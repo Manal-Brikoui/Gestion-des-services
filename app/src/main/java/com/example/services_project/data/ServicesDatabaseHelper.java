@@ -9,7 +9,7 @@ public class ServicesDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "services_db";
     // Maintenir la version à 40 ou l'incrémenter si vous avez fait des changements récents ici
-    private static final int DB_VERSION = 46;
+    private static final int DB_VERSION = 47;
 
     // -------------------------------------------------------------------------
     // Suppression des constantes de la table MESSAGES (TABLE_MESSAGES, CREATE_TABLE_MESSAGES, etc.)

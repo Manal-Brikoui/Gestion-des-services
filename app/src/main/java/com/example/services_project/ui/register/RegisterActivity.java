@@ -12,6 +12,9 @@ import com.example.services_project.model.User;
 import com.example.services_project.ui.login.LoginActivity;
 import com.example.services_project.utils.UserSessionManager;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText edtFirstName, edtLastName, edtEmail, edtPassword;
@@ -47,7 +50,13 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // Création du User
+            // Vérifier la validité du mot de passe
+            if (!isValidPassword(password)) {
+                Toast.makeText(this, "Le mot de passe doit contenir au moins une lettre majuscule, un chiffre et un caractère spécial.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Création du User avec le mot de passe
             User user = new User(firstName, lastName, email, password);
 
             // Appel au ViewModel pour l'inscription
@@ -72,5 +81,14 @@ public class RegisterActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    // Méthode pour vérifier que le mot de passe contient au moins une lettre majuscule, un chiffre et un caractère spécial
+    private boolean isValidPassword(String password) {
+        // Expression régulière pour vérifier les exigences du mot de passe
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{6,}$";
+        Pattern pattern = Pattern.compile(passwordPattern);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
     }
 }
