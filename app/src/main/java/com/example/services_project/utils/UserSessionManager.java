@@ -8,19 +8,18 @@ import com.example.services_project.model.User;
 
 public class UserSessionManager {
 
-    private static final String PREF_NAME = "AUTH_PREFS"; // Utilisez "AUTH_PREFS" pour la cohérence
-
-    private static final String KEY_USER_ID = "CURRENT_USER_ID"; // Utilisez "CURRENT_USER_ID" pour la cohérence
+    private static final String PREF_NAME = "AUTH_PREFS";
+    private static final String KEY_USER_ID = "CURRENT_USER_ID";
     private static final String KEY_FIRST_NAME = "firstName";
     private static final String KEY_LAST_NAME = "lastName";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
+    private static final String KEY_PROFILE_IMAGE_PATH = "profile_image_path"; // ✅ NOUVEAU
 
     private final SharedPreferences prefs;
     private final SharedPreferences.Editor editor;
 
     public UserSessionManager(Context context) {
-        // CORRIGÉ : Utilise "AUTH_PREFS" pour être cohérent avec le Fragment
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = prefs.edit();
     }
@@ -31,16 +30,11 @@ public class UserSessionManager {
     public void saveLoggedUser(User user) {
         if (user == null) return;
 
-        // CORRIGÉ : Utilise "CURRENT_USER_ID"
         editor.putInt(KEY_USER_ID, user.getId());
         editor.putString(KEY_FIRST_NAME, user.getFirstName());
         editor.putString(KEY_LAST_NAME, user.getLastName());
         editor.putString(KEY_EMAIL, user.getEmail());
         editor.putString(KEY_PASSWORD, user.getPassword());
-
-        // 🎯 CORRECTION CRITIQUE : Utiliser commit() pour une écriture synchrone.
-        // Cela garantit que l'ID est sauvegardé avant que DashboardActivity ne démarre
-        // et que le Fragment essaie de le lire.
         editor.commit();
     }
 
@@ -52,7 +46,7 @@ public class UserSessionManager {
         String email = prefs.getString(KEY_EMAIL, null);
 
         if (id == -1 || email == null) {
-            return null; // Aucun utilisateur connecté
+            return null;
         }
 
         User user = new User();
@@ -68,15 +62,28 @@ public class UserSessionManager {
     // ✔️ Sauvegarder uniquement l'ID utilisateur
     // ----------------------------------------------------------
     public void saveUserId(int userId) {
-        // Utilisation de commit() par précaution également
         editor.putInt(KEY_USER_ID, userId).commit();
     }
 
     // ----------------------------------------------------------
-    // ✔️ Récupérer uniquement l’ID utilisateur
+    // ✔️ Récupérer uniquement l'ID utilisateur
     // ----------------------------------------------------------
     public int getUserId() {
         return prefs.getInt(KEY_USER_ID, -1);
+    }
+
+    // ----------------------------------------------------------
+    // ✅ NOUVEAU : Sauvegarder le chemin de la photo de profil
+    // ----------------------------------------------------------
+    public void saveProfileImagePath(String imagePath) {
+        editor.putString(KEY_PROFILE_IMAGE_PATH, imagePath).apply();
+    }
+
+    // ----------------------------------------------------------
+    // ✅ NOUVEAU : Récupérer le chemin de la photo de profil
+    // ----------------------------------------------------------
+    public String getProfileImagePath() {
+        return prefs.getString(KEY_PROFILE_IMAGE_PATH, null);
     }
 
     // ----------------------------------------------------------
@@ -84,7 +91,7 @@ public class UserSessionManager {
     // ----------------------------------------------------------
     public void logoutUser() {
         editor.clear();
-        editor.apply(); // apply() est suffisant pour la déconnexion
+        editor.apply();
     }
 
     // ----------------------------------------------------------
@@ -92,14 +99,12 @@ public class UserSessionManager {
     // ----------------------------------------------------------
     public boolean changePasswordForLoggedUser(String newPassword, Context context) {
         User user = getLoggedUser();
-        if (user == null) return false; // Aucun utilisateur connecté
+        if (user == null) return false;
 
-        // 🔹 Mise à jour dans la base SQLite
         DatabaseHelper dbHelper = new DatabaseHelper(context);
         boolean success = dbHelper.updatePassword(user.getEmail(), newPassword);
 
         if (success) {
-            // 🔹 Mise à jour de la session locale
             user.setPassword(newPassword);
             saveLoggedUser(user);
         }
