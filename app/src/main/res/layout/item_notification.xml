@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -18,6 +17,7 @@
         android:padding="12dp"
         android:background="?android:attr/selectableItemBackground">
 
+        <!-- Indicateur de notification non lue (optionnel) -->
         <View
             android:id="@+id/indicatorUnread"
             android:layout_width="8dp"
@@ -26,45 +26,51 @@
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="8dp"
             android:visibility="gone"/>
+
+        <!-- Icône de notification réduite -->
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_dialog_email"
-            app:tint="@android:color/holo_blue_dark"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_notif"
+            app:tint="@color/black"
             android:layout_gravity="center_vertical"
             android:contentDescription="Icône de notification"
-            android:layout_marginEnd="12dp"/>
+            android:layout_marginEnd="10dp"/> <!-- Espacement ajusté -->
 
+        <!-- Contenu de la notification -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- Message de la notification -->
             <TextView
                 android:id="@+id/textNotificationMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Voir la demande de service de [Nom Prénom]"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="@android:color/black"/>
 
+            <!-- Titre du service -->
             <TextView
                 android:id="@+id/textServiceTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="pour votre service : Coupe de Cheveux"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:textColor="@android:color/darker_gray"/>
         </LinearLayout>
 
+        <!-- Date de la notification -->
         <TextView
             android:id="@+id/textNotificationDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:text="25/11/2025"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="@android:color/darker_gray"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
