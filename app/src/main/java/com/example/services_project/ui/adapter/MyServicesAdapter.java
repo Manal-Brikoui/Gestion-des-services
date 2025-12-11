@@ -24,7 +24,7 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
     private final OnDeleteClickListener onDeleteClick;
     private final OnViewApplicantsClickListener onViewApplicantsClick;
 
-    // --- Interfaces ---
+    // Interfaces
     public interface OnEditClickListener {
         void onEdit(Service service);
     }
@@ -36,8 +36,7 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
     public interface OnViewApplicantsClickListener {
         void onViewApplicants(Service service);
     }
-
-    // --- Constructeur ---
+    // Constructeur
     public MyServicesAdapter(Context context, List<Service> services,
                              OnEditClickListener onEditClick,
                              OnDeleteClickListener onDeleteClick,
@@ -49,13 +48,13 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
         this.onViewApplicantsClick = onViewApplicantsClick;
     }
 
-    // --- Mise à jour de la liste ---
+    // Mise à jour de la liste
     public void updateList(List<Service> newList) {
         this.services = newList;
         notifyDataSetChanged();
     }
 
-    // --- Création ViewHolder ---
+    // Création ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -63,7 +62,7 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
         return new ViewHolder(view);
     }
 
-    // --- Binding ---
+    // Binding
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Service s = services.get(position);
@@ -98,7 +97,7 @@ public class MyServicesAdapter extends RecyclerView.Adapter<MyServicesAdapter.Vi
         return services.size();
     }
 
-    // --- ViewHolder ---
+    // ViewHolder
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageService, btnEdit, btnDelete, btnViewApplicants;

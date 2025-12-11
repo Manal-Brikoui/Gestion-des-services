@@ -57,9 +57,7 @@ public class ApplyDialogFragment extends DialogFragment {
         // Fermer le modal
         btnClose.setOnClickListener(v -> dismiss());
 
-        // ---------------------------------------------------
-        // DatePicker : interdit les dates passées
-        // ---------------------------------------------------
+        // DatePicker
         editDate.setOnClickListener(v -> {
             final Calendar today = Calendar.getInstance();
             today.set(Calendar.HOUR_OF_DAY, 0);
@@ -77,14 +75,12 @@ public class ApplyDialogFragment extends DialogFragment {
                         editHeure.setText(""); // réinitialiser l'heure si date change
                     }, year, month, day);
 
-            // ⚡ Interdire les dates passées
+            //  Interdire les dates passées
             datePickerDialog.getDatePicker().setMinDate(today.getTimeInMillis());
             datePickerDialog.show();
         });
 
-        // ---------------------------------------------------
         // TimePicker : interdit les heures passées si date = aujourd'hui
-        // ---------------------------------------------------
         editHeure.setOnClickListener(v -> {
             String dateText = editDate.getText().toString().trim();
             if (dateText.isEmpty()) {
@@ -106,7 +102,7 @@ public class ApplyDialogFragment extends DialogFragment {
                         Calendar selectedDateTime = Calendar.getInstance();
                         selectedDateTime.set(selYear, selMonth, selDay, selectedHour, selectedMinute);
 
-                        // ⚡ Vérifier si date = aujourd'hui
+                        // Vérifier si date = aujourd'hui
                         Calendar today = Calendar.getInstance();
                         if (selYear == today.get(Calendar.YEAR)
                                 && selMonth == today.get(Calendar.MONTH)
@@ -124,9 +120,7 @@ public class ApplyDialogFragment extends DialogFragment {
             timePickerDialog.show();
         });
 
-        // ---------------------------------------------------
         // Bouton Postuler
-        // ---------------------------------------------------
         btnPostuler.setOnClickListener(v -> {
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();

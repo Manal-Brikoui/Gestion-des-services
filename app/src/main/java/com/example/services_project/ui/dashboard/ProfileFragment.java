@@ -1,5 +1,5 @@
 package com.example.services_project.ui.dashboard;
-
+import com.example.services_project.ui.login.LoginActivity;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -171,23 +171,23 @@ public class ProfileFragment extends Fragment {
         }
 
         if (!oldPwd.equals(currentUser.getPassword())) {
-            Toast.makeText(getContext(), "❌ Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), " Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!newPwd.equals(confirmPwd)) {
-            Toast.makeText(getContext(), "❌ Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), " Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Vérification du mot de passe
         if (!isValidPassword(newPwd)) {
-            Toast.makeText(getContext(), "❌ Le mot de passe doit contenir au moins une lettre majuscule, un chiffre et un caractère spécial.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), " Le mot de passe doit contenir au moins une lettre majuscule, un chiffre et un caractère spécial.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (newPwd.length() < 4) {
-            Toast.makeText(getContext(), "❌ Mot de passe trop court (min 4 caractères)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), " Mot de passe trop court (min 4 caractères)", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -200,24 +200,28 @@ public class ProfileFragment extends Fragment {
             currentUser.setPassword(newPwd);
             session.saveLoggedUser(currentUser);
 
-            Toast.makeText(getContext(), "✅ Mot de passe changé avec succès !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), " Mot de passe changé avec succès !", Toast.LENGTH_SHORT).show();
 
             // Réinitialiser les champs
             etOldPassword.setText("");
             etNewPassword.setText("");
             etConfirmPassword.setText("");
         } else {
-            Toast.makeText(getContext(), "❌ Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), " Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void logout() {
-        session.logoutUser();
+        session.logoutUser(); // Déconnexion de l'utilisateur
         Toast.makeText(requireContext(), "Déconnexion réussie", Toast.LENGTH_SHORT).show();
+
+        // Redirection vers LoginActivity
+        Intent intent = new Intent(requireContext(), LoginActivity.class);
+        startActivity(intent);
         requireActivity().finish();
     }
 
-    // ==================== DIALOGUES SUPPORT ====================
+
 
     private void showHelpDialog() {
         Dialog dialog = new Dialog(requireContext());

@@ -9,7 +9,7 @@ public class User {
 
     public User() {}
 
-    // Constructeur utilisé pour l'enregistrement (sans ID)
+    // Constructeur utilisé pour l'enregistrement
     public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -17,7 +17,6 @@ public class User {
         this.password = password;
     }
 
-    // Constructeur complet (utile lors de la récupération depuis la DB)
     public User(int id, String firstName, String lastName, String email, String password) {
         this.id = id;
         this.firstName = firstName;
@@ -26,7 +25,7 @@ public class User {
         this.password = password;
     }
 
-    // --- Getters / Setters (EXISTANTS) ---
+    //  Getters / Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -42,21 +41,17 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    // ----------------------------------------------------------------------
-    // --- NOUVELLES MÉTHODES UTILITAIRES POUR L'AFFICHAGE DE LA MESSAGERIE ---
-    // ----------------------------------------------------------------------
+    //NOUVELLES MÉTHODES UTILITAIRES POUR L'AFFICHAGE DE LA MESSAGERIE
 
-    /**
-     * Retourne le nom complet (Prénom Nom).
-     */
+
+     //Retourne le nom complet (Prénom Nom).
+
     public String getFullName() {
         return firstName + " " + lastName;
     }
 
-    /**
-     * Retourne la première lettre du prénom en majuscule, pour l'icône circulaire.
-     * @return L'initiale du prénom ou "?" si le prénom est vide.
-     */
+    //Retourne la première lettre du prénom en majuscule, pour l'icône circulaire.
+
     public String getInitial() {
         if (firstName != null && !firstName.isEmpty()) {
             return firstName.substring(0, 1).toUpperCase();

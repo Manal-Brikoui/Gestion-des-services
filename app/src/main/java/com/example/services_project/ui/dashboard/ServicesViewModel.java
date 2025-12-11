@@ -10,9 +10,9 @@ import com.example.services_project.model.Service;
 import com.example.services_project.utils.UserSessionManager;
 import android.util.Log;
 
-import java.text.SimpleDateFormat; // 📅
-import java.util.Date; // 📅
-import java.util.Locale; // 📅
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +34,6 @@ public class ServicesViewModel extends AndroidViewModel {
         loadNotifications();
     }
 
-    // ---------------- SERVICES & USER (inchangés) ----------------
 
     public LiveData<List<Service>> getPostedServices() {
         return postedServices;
@@ -82,7 +81,7 @@ public class ServicesViewModel extends AndroidViewModel {
         }).start();
     }
 
-    // ---------------- Candidates (Modifié) ----------------
+    // Candidates
 
     public LiveData<List<Candidate>> getCandidatesLiveData(int serviceId) {
         if (!candidatesMap.containsKey(serviceId)) {
@@ -107,11 +106,10 @@ public class ServicesViewModel extends AndroidViewModel {
         candidate.setServiceId(serviceId);
         candidate.setApplicantId(getCurrentUserId());
 
-        // La date de postulation sera enregistrée automatiquement dans la DB via le DEFAULT (DATETIME('now','localtime'))
         new Thread(() -> {
             repository.addCandidate(candidate);
             loadCandidates(serviceId);
-            loadNotifications();  // Maj des notifications après ajout du candidat
+            loadNotifications();
         }).start();
     }
 
@@ -129,19 +127,19 @@ public class ServicesViewModel extends AndroidViewModel {
             return;
         }
 
-        // ⭐️ LOGIQUE CLÉ : Générer la date/heure actuelle
+        //  Générer la date/heure actuelle
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String currentDateTime = sdf.format(new Date());
 
         new Thread(() -> {
-            // ✅ MODIFICATION : Appelle la méthode Repository pour mettre à jour le statut ET la date
+            // Appelle la méthode Repository pour mettre à jour le statut ET la date
             repository.updateCandidateStatusWithDate(candidate.getId(), status, currentDateTime);
             loadCandidates(candidate.getServiceId());
-            loadNotifications(); // Maj des notifications après mise à jour du statut
+            loadNotifications();
         }).start();
     }
 
-    // ---------------- Notifications (inchangés) ----------------
+    // Notifications
 
     public LiveData<List<Candidate>> getNotificationsLiveData() {
         return notificationsLiveData;
@@ -159,7 +157,7 @@ public class ServicesViewModel extends AndroidViewModel {
 
             List<Candidate> finalNotifications = new ArrayList<>();
 
-            // A. Notifications REÇUES (Prestataire/Owner)
+            //  Notifications REÇUES (Prestataire)
             List<Candidate> receivedCandidates = repository.getAllCandidatesForUserServices(userId);
 
             for (Candidate candidate : receivedCandidates) {
@@ -168,7 +166,7 @@ public class ServicesViewModel extends AndroidViewModel {
                 finalNotifications.add(candidate);
             }
 
-            // B. Notifications de RÉPONSE (Candidat/Client)
+            // Notifications de RÉPONSE (Candidat)
             List<Candidate> postedCandidates = repository.getCandidatesPostedByUser(userId);
 
             for (Candidate candidate : postedCandidates) {

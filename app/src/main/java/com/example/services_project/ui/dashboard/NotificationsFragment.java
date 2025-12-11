@@ -39,14 +39,13 @@ public class NotificationsFragment extends Fragment implements NotificationsAdap
         // Initialisation du ViewModel
         viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
-        // ⚠️ CORRECTION CRITIQUE : Récupérer l'ID de l'utilisateur avant d'initialiser l'Adapter
+        //  Récupérer l'ID de l'utilisateur avant d'initialiser l'Adapter
         int currentUserId = viewModel.getCurrentUserId();
 
         // Initialisation du RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // ⚠️ CORRECTION : Passer l'ID de l'utilisateur à l'Adapter
-        // (Nécessaire pour que l'Adapter puisse personnaliser le titre de la notification)
+        //Passer l'ID de l'utilisateur à l'Adapter
         adapter = new NotificationsAdapter(new ArrayList<>(), this, currentUserId);
 
         recyclerView.setAdapter(adapter);
@@ -78,12 +77,9 @@ public class NotificationsFragment extends Fragment implements NotificationsAdap
 
         int currentUserId = viewModel.getCurrentUserId();
 
-        // ----------------------------------------------------
-        // LOGIQUE DE CLIC (Reste correcte)
-        // ----------------------------------------------------
+
         if (candidate.getApplicantId() == currentUserId) {
 
-            // Logique Client : Affiche un Toast informatif (basé sur le titre du service)
             String serviceTitle = candidate.getServiceTitle();
             String status = candidate.getStatus();
             String statusText;
@@ -104,7 +100,6 @@ public class NotificationsFragment extends Fragment implements NotificationsAdap
 
         } else {
 
-            // Logique Propriétaire (Owner) : Ouvre le dialogue Accepter/Refuser
 
             ApplicantsDialogFragment dialog = ApplicantsDialogFragment.newInstance(candidate.getServiceId());
             dialog.show(getParentFragmentManager(), "ApplicantsDialog");

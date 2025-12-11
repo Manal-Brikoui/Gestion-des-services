@@ -16,7 +16,7 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
     private List<Candidate> candidateList;
     private final OnApplicantActionListener listener;
 
-    // 1. Interface de communication pour les actions (Accept/Reject)
+    // Interface de communication pour les actions (Accept/Reject)
     public interface OnApplicantActionListener {
         void onAccept(Candidate candidate);
         void onReject(Candidate candidate);
@@ -27,7 +27,6 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
         this.listener = listener;
     }
 
-    // 2. Méthode de mise à jour de la liste (nécessaire pour l'Observer du ViewModel)
     public void updateList(List<Candidate> newList) {
         this.candidateList = newList;
         notifyDataSetChanged();
@@ -36,7 +35,6 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
     @NonNull
     @Override
     public CandidateViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Assurez-vous que ce layout contient tous les éléments (TextViews + les 2 Buttons)
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_applicant, parent, false);
         return new CandidateViewHolder(view);
     }
@@ -52,7 +50,7 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
         holder.phone.setText(candidate.getPhone());
         holder.status.setText(candidate.getStatus());
 
-        // 3. Logique des boutons ACCEPT/REJECT
+        // Logique des boutons ACCEPT/REJECT
         if ("PENDING".equals(candidate.getStatus())) {
             holder.btnAccept.setVisibility(View.VISIBLE);
             holder.btnReject.setVisibility(View.VISIBLE);
@@ -62,7 +60,6 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
             holder.btnReject.setOnClickListener(v -> listener.onReject(candidate));
 
         } else {
-            // Si le candidat est ACCEPTED ou REJECTED, cacher les boutons d'action
             holder.btnAccept.setVisibility(View.GONE);
             holder.btnReject.setVisibility(View.GONE);
         }
@@ -72,11 +69,10 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
     public int getItemCount() {
         return candidateList.size();
     }
-
     // ViewHolder
     public static class CandidateViewHolder extends RecyclerView.ViewHolder {
         public TextView name, dateTime, location, phone, status;
-        public Button btnAccept, btnReject; // ✅ Les deux boutons sont ici
+        public Button btnAccept, btnReject; //  Les deux boutons sont ici
 
         public CandidateViewHolder(View itemView) {
             super(itemView);
@@ -86,8 +82,8 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
             phone = itemView.findViewById(R.id.textApplicantPhone);
             status = itemView.findViewById(R.id.textApplicantStatus);
 
-            btnAccept = itemView.findViewById(R.id.btnAcceptApplicant); // 🚨 Vérifiez cet ID
-            btnReject = itemView.findViewById(R.id.btnRejectApplicant); // 🚨 Vérifiez cet ID
+            btnAccept = itemView.findViewById(R.id.btnAcceptApplicant);
+            btnReject = itemView.findViewById(R.id.btnRejectApplicant);
         }
     }
 }

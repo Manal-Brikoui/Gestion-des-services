@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.view.Window;
-import android.util.Log; // Ajout du Log
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,7 +30,6 @@ public class ApplicantsDialogFragment extends DialogFragment {
     private ApplicantsAdapter adapter;
     private RecyclerView recyclerView;
     private TextView emptyMessage;
-    // Ajout d'une référence au ViewModel
     private ServicesViewModel viewModel;
 
     public static ApplicantsDialogFragment newInstance(int serviceId) {
@@ -73,14 +72,12 @@ public class ApplicantsDialogFragment extends DialogFragment {
             @Override
             public void onAccept(Candidate candidate) {
                 Log.d("APPLICANTS_DIALOG", "Candidat accepté: " + candidate.getLastName());
-                // ✅ APPEL AU VIEWMODEL
                 viewModel.acceptCandidate(candidate);
             }
 
             @Override
             public void onReject(Candidate candidate) {
                 Log.d("APPLICANTS_DIALOG", "Candidat refusé: " + candidate.getLastName());
-                // ✅ APPEL AU VIEWMODEL
                 viewModel.rejectCandidate(candidate);
             }
         });
@@ -90,9 +87,7 @@ public class ApplicantsDialogFragment extends DialogFragment {
             serviceId = getArguments().getInt(ARG_SERVICE_ID);
         }
 
-        // Vérification cruciale : si serviceId est -1, le chargement échouera.
         if (serviceId > 0) {
-            // Observer la LiveData pour mettre à jour la liste en temps réel
             viewModel.getCandidatesLiveData(serviceId).observe(getViewLifecycleOwner(), this::updateUI);
         } else {
             Log.e("APPLICANTS_DIALOG", "ID de service invalide: " + serviceId);

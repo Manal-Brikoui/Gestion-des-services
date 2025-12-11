@@ -17,7 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
     private static final String DATABASE_NAME = "services.db";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 25;
 
     // --- Constantes TABLE_USERS ---
     public static final String TABLE_USERS = "users";
@@ -36,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_PASSWORD + " TEXT" +
                     ");";
 
-    // --- Constantes TABLE_MESSAGES ---
+    //TABLE_MESSAGES
     public static final String TABLE_MESSAGES = "messages";
     public static final String MESSAGE_COLUMN_ID = "id";
     public static final String MESSAGE_COLUMN_SENDER_ID = "sender_id";
@@ -57,22 +57,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "FOREIGN KEY(" + MESSAGE_COLUMN_RECEIVER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + ")" +
                     ");";
 
-    // -------------------------------------------------------------------------
     // CONSTRUCTEUR
-    // -------------------------------------------------------------------------
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    // -------------------------------------------------------------------------
     // MÉTHODES HÉRITÉES
-    // -------------------------------------------------------------------------
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "Creating tables in " + DATABASE_NAME);
         db.execSQL(CREATE_TABLE_USERS);
         db.execSQL(CREATE_TABLE_MESSAGES);
-        // TODO: Ajoutez ici la création d'autres tables si nécessaire
     }
 
     @Override
@@ -87,9 +82,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // -------------------------------------------------------------------------
     // GESTION DES UTILISATEURS (CRUD)
-    // -------------------------------------------------------------------------
     public boolean insertUser(String firstName, String lastName, String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -200,9 +193,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rows > 0;
     }
 
-    // -------------------------------------------------------------------------
     // GESTION DES MESSAGES (CRUD)
-    // -------------------------------------------------------------------------
     public long insertMessage(Message message) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();

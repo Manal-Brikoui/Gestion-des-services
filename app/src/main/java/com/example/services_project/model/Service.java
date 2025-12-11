@@ -1,7 +1,6 @@
 package com.example.services_project.model;
-
 import java.io.Serializable;
-
+//Serializable pouvoir envoyer une activity a une autre via intent
 public class Service implements Serializable {
 
     private int id;
@@ -13,7 +12,7 @@ public class Service implements Serializable {
     private String location;
     private String price;
     private String moreDetails;
-    private int userId; // ID de l'utilisateur
+    private int userId;
 
     public Service(int id, String category, String title, String description,
                    int imageResId, String imageUri,
@@ -31,7 +30,7 @@ public class Service implements Serializable {
         this.userId = userId;
     }
 
-    // ------------------ GETTERS ------------------
+    // GETTERS
     public int getId() { return id; }
     public String getCategory() { return category; }
     public String getTitle() { return title; }
@@ -43,7 +42,7 @@ public class Service implements Serializable {
     public String getMoreDetails() { return moreDetails; }
     public int getUserId() { return userId; }
 
-    // ------------------ SETTERS ------------------
+    // SETTERS
     public void setUserId(int userId) {
         this.userId = userId;
     }

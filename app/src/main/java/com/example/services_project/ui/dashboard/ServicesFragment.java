@@ -18,7 +18,7 @@ import com.example.services_project.model.Service;
 import com.example.services_project.ui.adapter.MyServicesAdapter;
 
 import java.util.ArrayList;
-import java.util.List; // Importation de List
+import java.util.List;
 
 public class ServicesFragment extends Fragment {
 
@@ -40,7 +40,6 @@ public class ServicesFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialisation de l'Adapter avec les callbacks nécessaires
         adapter = new MyServicesAdapter(
                 requireContext(),
                 new ArrayList<>(),
@@ -55,13 +54,9 @@ public class ServicesFragment extends Fragment {
 
         recyclerView.setAdapter(adapter);
 
-        // Assurez-vous que ServicesViewModel est celui qui gère les services
         viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
-        // Observer les services du user connecté
-        // Correction de l'erreur 'getPostedServices' et 'isEmpty()' et 'updateList'
         viewModel.getPostedServices().observe(getViewLifecycleOwner(), services -> {
-            // Utilisation directe de la liste pour vérifier si elle est null ou vide
             if (services != null && !services.isEmpty()) {
                 adapter.updateList(services);
                 recyclerView.setVisibility(View.VISIBLE);
@@ -75,7 +70,7 @@ public class ServicesFragment extends Fragment {
         return root;
     }
 
-    // Ouvrir formulaire de modification (uniquement si propriétaire)
+    // Ouvrir formulaire de modification
     private void openEditServiceForm(Service service) {
         if (service.getUserId() != viewModel.getCurrentUserId()) return;
 
@@ -95,9 +90,8 @@ public class ServicesFragment extends Fragment {
         fragment.show(getParentFragmentManager(), "edit_service");
     }
 
-    // Supprimer service (uniquement si propriétaire)
+    // Supprimer service
     private void deleteUserService(Service service) {
-        // Correction de l'erreur 'deleteService'
         if (service.getUserId() == viewModel.getCurrentUserId()) {
             viewModel.deleteService(service);
         }
@@ -106,7 +100,6 @@ public class ServicesFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Optionnel : Forcer le rechargement au retour sur le fragment
         if (viewModel != null) {
             viewModel.loadPostedServices();
         }

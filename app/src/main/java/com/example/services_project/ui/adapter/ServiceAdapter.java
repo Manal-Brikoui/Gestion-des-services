@@ -48,7 +48,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         holder.title.setText(service.getTitle());
         holder.description.setText(service.getDescription());
 
-        // 🔥 Chargement image sécurisé
         if (service.getImageUri() != null && !service.getImageUri().isEmpty()) {
             try {
                 holder.image.setImageURI(Uri.parse(service.getImageUri()));
@@ -74,7 +73,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         return serviceList.size();
     }
 
-    // 🔥 Mise à jour rapide + fluide grâce à DiffUtil
     public void updateList(List<Service> newList) {
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
                 new ServiceDiffCallback(serviceList, newList)
@@ -83,10 +81,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         serviceList.addAll(newList);
         diffResult.dispatchUpdatesTo(this);
     }
-
-    // --------------------------
-    // DIFF UTIL (corrigé)
-    // --------------------------
     static class ServiceDiffCallback extends DiffUtil.Callback {
 
         List<Service> oldList;
@@ -127,9 +121,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         }
     }
 
-    // -------------------------
-    //   VIEW HOLDER
-    // -------------------------
+
     static class ServiceViewHolder extends RecyclerView.ViewHolder {
 
         TextView category, title, description;

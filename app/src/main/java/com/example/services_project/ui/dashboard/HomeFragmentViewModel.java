@@ -18,7 +18,6 @@ public class HomeFragmentViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Service>> services = new MutableLiveData<>();
     private final HomeFragmentRepository repository;
 
-    // THREAD POOL POUR ÉVITER FREEZE / CRASH
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public HomeFragmentViewModel(@NonNull Application application) {
@@ -27,7 +26,7 @@ public class HomeFragmentViewModel extends AndroidViewModel {
         loadServices();
     }
 
-    // --------- CHARGER LES SERVICES SANS BLOQUER L’UI ---------
+    // CHARGER LES SERVICES SANS BLOQUER L’UI
     private void loadServices() {
         executor.execute(() -> {
             List<Service> list = repository.getAllServices();
@@ -40,7 +39,6 @@ public class HomeFragmentViewModel extends AndroidViewModel {
     }
 
 
-    // --------- AJOUTER UN SERVICE SANS CRASH ---------
     public void insertService(Service service) {
         executor.execute(() -> {
             repository.insertService(service);

@@ -22,13 +22,11 @@ public class HomeFragmentRepository {
         dbHelper = new ServicesDatabaseHelper(context);
     }
 
-    // ----------------- Services (Inchangé) -----------------
 
     public List<Service> getAllServices() {
         List<Service> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // Utilisation du try-with-resources pour la gestion automatique du Cursor et de la DB
         try (Cursor cursor = db.rawQuery(
                 "SELECT id, category, title, description, imageResId, imageUri, location, price, moreDetails, userId FROM services",
                 null
@@ -57,8 +55,8 @@ public class HomeFragmentRepository {
         return list;
     }
 
-    /**
-     * Méthode pour récupérer les services postés par un utilisateur spécifique.
+    /*
+     Méthode pour récupérer les services postés par un utilisateur spécifique.
      */
     public List<Service> getServicesByUser(int userId) {
         List<Service> list = new ArrayList<>();
@@ -106,8 +104,8 @@ public class HomeFragmentRepository {
         }
     }
 
-    /**
-     * ✅ AJOUTÉ : Méthode pour mettre à jour un service existant.
+    /*
+     Méthode pour mettre à jour un service existant.
      */
     public void updateService(Service service) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -117,7 +115,7 @@ public class HomeFragmentRepository {
             int rowsAffected = db.update("services", values, "id = ?", new String[]{String.valueOf(service.getId())});
 
             if (rowsAffected > 0) {
-                Log.d(TAG, "✅ Service ID " + service.getId() + " mis à jour.");
+                Log.d(TAG, " Service ID " + service.getId() + " mis à jour.");
             } else {
                 Log.w(TAG, "Service ID " + service.getId() + " non trouvé pour mise à jour.");
             }
@@ -130,8 +128,8 @@ public class HomeFragmentRepository {
     }
 
 
-    /**
-     * Méthode utilitaire pour créer ContentValues à partir d'un objet Service.
+    /*
+     Méthode utilitaire pour créer ContentValues à partir d'un objet Service.
      */
     private ContentValues serviceToContentValues(Service service) {
         ContentValues values = new ContentValues();
@@ -147,8 +145,8 @@ public class HomeFragmentRepository {
         return values;
     }
 
-    /**
-     * Méthode pour supprimer un service.
+    /*
+      Méthode pour supprimer un service.
      */
     public void deleteService(int serviceId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -156,7 +154,7 @@ public class HomeFragmentRepository {
             int rowsAffected = db.delete("services", "id = ?", new String[]{String.valueOf(serviceId)});
 
             if (rowsAffected > 0) {
-                Log.d(TAG, "✅ Service ID " + serviceId + " supprimé. " + rowsAffected + " lignes affectées.");
+                Log.d(TAG, " Service ID " + serviceId + " supprimé. " + rowsAffected + " lignes affectées.");
             } else {
                 Log.w(TAG, "Service ID " + serviceId + " non trouvé pour suppression.");
             }
@@ -168,7 +166,7 @@ public class HomeFragmentRepository {
     }
 
 
-    // ----------------- Candidatures (Notification) -----------------
+    //  Candidatures
 
     public void addCandidate(Candidate candidate) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -179,8 +177,6 @@ public class HomeFragmentRepository {
             values.put("firstName", candidate.getFirstName());
             values.put("lastName", candidate.getLastName());
             values.put("dateTime", candidate.getDateTime());
-            // applicationDate est géré par le DEFAULT dans la DB, mais on peut l'insérer si on a la valeur
-            // Ici, on laisse la DB mettre la date de postulation par défaut
             values.put("location", candidate.getLocation());
             values.put("phone", candidate.getPhone());
             values.put("email", candidate.getEmail());
@@ -194,31 +190,19 @@ public class HomeFragmentRepository {
         }
     }
 
-    /**
-     * 🛑 ANCIENNE méthode (sans mise à jour de la date). Remplacée par updateCandidateStatusWithDate.
-     * Pour la compatibilité, je la mets à jour pour utiliser la nouvelle méthode si elle est appelée.
-     */
     @Deprecated
     public void updateCandidateStatus(int candidateId, String newStatus) {
-        // Appelle la nouvelle méthode pour assurer la mise à jour de la date.
-        // On passe null pour la date, ce qui ne devrait pas arriver si le ViewModel est à jour.
-        // Si vous utilisez le code du ViewModel corrigé, cette méthode ne devrait plus être appelée.
+
         updateCandidateStatusWithDate(candidateId, newStatus, null);
     }
 
-    /**
-     * ✅ NOUVEAU : Méthode de mise à jour du statut QUI MET À JOUR LA DATE DE NOTIFICATION
-     * @param candidateId ID de la candidature.
-     * @param newStatus Le nouveau statut (ACCEPTED ou REJECTED).
-     * @param currentDateTime Date/heure actuelle générée par le ViewModel.
-     */
+
     public void updateCandidateStatusWithDate(int candidateId, String newStatus, String currentDateTime) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
             values.put("status", newStatus);
 
-            // ⭐️ MISE À JOUR CRITIQUE : Enregistre la date d'acceptation ou de refus
             if (currentDateTime != null) {
                 values.put("applicationDate", currentDateTime);
             }
@@ -226,7 +210,7 @@ public class HomeFragmentRepository {
             int rowsAffected = db.update("candidates", values, "id = ?", new String[]{String.valueOf(candidateId)});
 
             if (rowsAffected > 0) {
-                Log.d(TAG, "✅ Candidature ID " + candidateId + " mise à jour à " + newStatus + " avec date.");
+                Log.d(TAG, " Candidature ID " + candidateId + " mise à jour à " + newStatus + " avec date.");
             }
 
         } catch (Exception e) {
@@ -237,12 +221,10 @@ public class HomeFragmentRepository {
     }
 
 
-    // ⚠️ CORRECTION : Ajout de la lecture du champ 'applicationDate' dans le SELECT et dans la construction du modèle.
     public List<Candidate> getCandidatesForService(int serviceId) {
         List<Candidate> list = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // ⭐️ AJOUT de c.applicationDate
         String query = "SELECT c.id, c.applicantId, c.serviceId, c.firstName, c.lastName, c.dateTime, c.applicationDate, c.location, c.phone, c.email, c.status, s.title AS serviceTitle " +
                 "FROM candidates c INNER JOIN services s ON c.serviceId = s.id WHERE c.serviceId = ?";
         String[] selectionArgs = new String[]{String.valueOf(serviceId)};
@@ -251,7 +233,6 @@ public class HomeFragmentRepository {
 
             if (cursor.moveToFirst()) {
                 do {
-                    // ✅ Utilisation du Constructeur 12 arguments avec le titre lu et applicationDate
                     list.add(new Candidate(
                             cursor.getInt(cursor.getColumnIndexOrThrow("id")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("applicantId")),
@@ -259,7 +240,7 @@ public class HomeFragmentRepository {
                             cursor.getString(cursor.getColumnIndexOrThrow("firstName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("lastName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
-                            cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")), // ✅ LECTURE DE LA NOUVELLE DATE
+                            cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")),
                             cursor.getString(cursor.getColumnIndexOrThrow("location")),
                             cursor.getString(cursor.getColumnIndexOrThrow("phone")),
                             cursor.getString(cursor.getColumnIndexOrThrow("email")),
@@ -277,12 +258,10 @@ public class HomeFragmentRepository {
         return list;
     }
 
-    // ⚠️ CORRECTION : Ajout de la lecture du champ 'applicationDate'
     public List<Candidate> getAllCandidatesForUserServices(int userId) {
         List<Candidate> notifications = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // ⭐️ AJOUT de c.applicationDate
         String query = "SELECT c.id, c.applicantId, c.serviceId, c.firstName, c.lastName, c.dateTime, c.applicationDate, c.location, c.phone, c.email, c.status, s.title AS serviceTitle " +
                 "FROM candidates c " +
                 "INNER JOIN services s ON c.serviceId = s.id " +
@@ -291,7 +270,6 @@ public class HomeFragmentRepository {
         try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)})) {
             if (cursor.moveToFirst()) {
                 do {
-                    // ✅ Utilisation du Constructeur 12 arguments avec le titre lu et applicationDate
                     notifications.add(new Candidate(
                             cursor.getInt(cursor.getColumnIndexOrThrow("id")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("applicantId")),
@@ -299,7 +277,7 @@ public class HomeFragmentRepository {
                             cursor.getString(cursor.getColumnIndexOrThrow("firstName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("lastName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
-                            cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")), // ✅ LECTURE DE LA NOUVELLE DATE
+                            cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")),
                             cursor.getString(cursor.getColumnIndexOrThrow("location")),
                             cursor.getString(cursor.getColumnIndexOrThrow("phone")),
                             cursor.getString(cursor.getColumnIndexOrThrow("email")),
@@ -316,12 +294,10 @@ public class HomeFragmentRepository {
         return notifications;
     }
 
-    // ⚠️ CORRECTION : Ajout de la lecture du champ 'applicationDate'
     public List<Candidate> getCandidatesPostedByUser(int applicantId) {
         List<Candidate> notifications = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // ⭐️ AJOUT de c.applicationDate
         String query = "SELECT c.id, c.applicantId, c.serviceId, c.firstName, c.lastName, c.dateTime, c.applicationDate, c.location, c.phone, c.email, c.status, s.title AS serviceTitle " +
                 "FROM candidates c " +
                 "INNER JOIN services s ON c.serviceId = s.id " +
@@ -330,7 +306,6 @@ public class HomeFragmentRepository {
         try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(applicantId)})) {
             if (cursor.moveToFirst()) {
                 do {
-                    // ✅ Utilisation du Constructeur 12 arguments avec le titre lu et applicationDate
                     notifications.add(new Candidate(
                             cursor.getInt(cursor.getColumnIndexOrThrow("id")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("applicantId")),
@@ -338,7 +313,7 @@ public class HomeFragmentRepository {
                             cursor.getString(cursor.getColumnIndexOrThrow("firstName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("lastName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
-                            cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")), // ✅ LECTURE DE LA NOUVELLE DATE
+                            cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")),
                             cursor.getString(cursor.getColumnIndexOrThrow("location")),
                             cursor.getString(cursor.getColumnIndexOrThrow("phone")),
                             cursor.getString(cursor.getColumnIndexOrThrow("email")),

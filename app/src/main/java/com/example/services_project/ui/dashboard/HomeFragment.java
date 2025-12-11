@@ -31,7 +31,7 @@ public class HomeFragment extends Fragment {
 
     private EditText searchBar;
     private ImageView filterIcon;
-    private ImageView messageIcon; // 👈 NOUVELLE DÉCLARATION
+    private ImageView messageIcon;
 
     private final List<Service> allServices = new ArrayList<>();
 
@@ -50,22 +50,16 @@ public class HomeFragment extends Fragment {
 
         searchBar = root.findViewById(R.id.searchBar);
         filterIcon = root.findViewById(R.id.filterIcon);
-        messageIcon = root.findViewById(R.id.messageIcon); // 👈 INITIALISATION
+        messageIcon = root.findViewById(R.id.messageIcon);
 
-        // ----------------------------
         // INIT ADAPTER (vide)
-        // ----------------------------
         adapter = new ServiceAdapter(requireContext(), new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        // ----------------------------
         // INIT VIEWMODEL
-        // ----------------------------
         viewModel = new ViewModelProvider(this).get(HomeFragmentViewModel.class);
 
-        // ----------------------------
         // OBSERVER DATABASE
-        // ----------------------------
         viewModel.getServices().observe(getViewLifecycleOwner(), services -> {
             if (services == null) return;
 
@@ -75,9 +69,7 @@ public class HomeFragment extends Fragment {
             adapter.updateList(allServices);
         });
 
-        // ----------------------------
         // BARRE DE RECHERCHE
-        // ----------------------------
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
@@ -88,29 +80,21 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // ----------------------------
-        // FILTRE PAR CATÉGORIE (EXISTANT)
-        // ----------------------------
+        // FILTRE PAR CATÉGORIE
         filterIcon.setOnClickListener(v -> showFilterDialog());
 
-        // ----------------------------
-        // 🔔 BOUTON MESSAGERIE (NOUVEAU)
-        // ----------------------------
+        //  BOUTON MESSAGERIE
         messageIcon.setOnClickListener(v -> {
-            // Remplace le fragment actuel (HomeFragment) par le nouveau fragment de liste des utilisateurs.
-            // R.id.nav_host_fragment est souvent l'ID du conteneur du fragment dans l'Activity hôte.
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.dashboard_container, new UsersListFragment())
-                    .addToBackStack(null) // Permet de revenir à HomeFragment avec le bouton Retour
+                    .addToBackStack(null)
                     .commit();
         });
 
         return root;
     }
 
-    // -----------------------------------------------------
-    // 🔍 FILTRAGE PAR MOT-CLÉ (EXISTANT)
-    // -----------------------------------------------------
+    // FILTRAGE PAR MOT-CLÉ
     private void filterByText(String query) {
         if (query == null) query = "";
 
@@ -130,9 +114,7 @@ public class HomeFragment extends Fragment {
         adapter.updateList(filtered);
     }
 
-    // -----------------------------------------------------
-    // 🔍 FILTRAGE PAR CATÉGORIE (EXISTANT)
-    // -----------------------------------------------------
+    // FILTRAGE PAR CATÉGORIE (
     private void showFilterDialog() {
 
         final String[] categories = {

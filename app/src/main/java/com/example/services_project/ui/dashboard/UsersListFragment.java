@@ -8,10 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,16 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.services_project.R;
 import com.example.services_project.model.User;
 import com.example.services_project.ui.adapter.UserAdapter;
-// L'import est correct si ChatActivity est dans le même package (dashboard)
-import com.example.services_project.ui.dashboard.ChatActivity;
 
 import java.util.ArrayList;
 
-
-/**
- * Fragment pour afficher la liste de tous les utilisateurs disponibles pour la messagerie.
- * Implémente l'interface OnUserClickListener (maintenant avec getUnreadCount) pour gérer la navigation vers ChatActivity.
- */
 public class UsersListFragment extends Fragment implements UserAdapter.OnUserClickListener {
 
     private static final String TAG = "UsersListFragment";
@@ -37,8 +32,9 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
     private MessageViewModel viewModel;
     private UserAdapter userAdapter;
     private RecyclerView recyclerView;
+    private SearchView searchView;
+    private TextView tvNoResults;
 
-    // --- Constantes de Session (Alignées avec UserSessionManager) ---
     private static final String PREF_AUTH_FILE = "AUTH_PREFS";
     private static final String PREF_USER_ID_KEY = "CURRENT_USER_ID";
     private static final int DEFAULT_USER_ID = -1;
@@ -54,7 +50,6 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
         // Récupération de l'ID réel de la session
         currentUserId = getCurrentUserIdFromSession(context);
 
-        // Définir l'ID dans le ViewModel (pour le filtrage dans la DB et pour le comptage des messages)
         if (currentUserId != DEFAULT_USER_ID) {
             viewModel.setCurrentUserId(currentUserId);
             Log.d(TAG, "ID Utilisateur Courant chargé: " + currentUserId);
@@ -73,21 +68,33 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
     ) {
         View root = inflater.inflate(R.layout.fragment_users_list, container, false);
 
+        // Initialisation des vues
         recyclerView = root.findViewById(R.id.recyclerViewUsersList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        searchView = root.findViewById(R.id.searchView);
+        tvNoResults = root.findViewById(R.id.tvNoResults);
 
-        // L'adaptateur est correctement initialisé ici
+        // Configuration du RecyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         userAdapter = new UserAdapter(requireContext(), new ArrayList<>(), this);
         recyclerView.setAdapter(userAdapter);
 
-        // L'Observer met à jour l'adaptateur
-        viewModel.getUsersList().observe(getViewLifecycleOwner(), users -> {
-            if (users != null) {
+        // Configuration de la SearchView
+        setupSearchView();
+
+        // Observer la liste filtrée des utilisateurs
+        viewModel.getFilteredUsersList().observe(getViewLifecycleOwner(), users -> {
+            if (users != null && !users.isEmpty()) {
                 userAdapter.updateList(users);
+                recyclerView.setVisibility(View.VISIBLE);
+                tvNoResults.setVisibility(View.GONE);
+            } else {
+                userAdapter.updateList(new ArrayList<>());
+                recyclerView.setVisibility(View.GONE);
+                tvNoResults.setVisibility(View.VISIBLE);
             }
         });
 
-        // Charger la liste des utilisateurs UNIQUEMENT si l'ID est valide
+        // Charger les utilisateurs si l'ID est valide
         if (currentUserId != DEFAULT_USER_ID) {
             viewModel.loadAllUsers();
         }
@@ -95,26 +102,55 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
         return root;
     }
 
-    // 🎯 CORRECTION: Forcer le rechargement de la liste lorsque le fragment redevient visible
+    /**
+     * Configure la barre de recherche
+     */
+    private void setupSearchView() {
+        if (searchView == null) return;
+
+        searchView.setQueryHint("Rechercher par nom ou email...");
+        searchView.setIconifiedByDefault(false);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Filtrer lors de la soumission
+                viewModel.filterUsers(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Filtrer en temps réel pendant la saisie
+                viewModel.filterUsers(newText);
+                return true;
+            }
+        });
+
+        // Écouteur pour le bouton de fermeture de la recherche
+        searchView.setOnCloseListener(() -> {
+            viewModel.filterUsers("");
+            return false;
+        });
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         if (currentUserId != DEFAULT_USER_ID) {
             Log.d(TAG, "onResume: Forcing user list reload to update unread badge.");
-            // Cela relance loadAllUsers, qui recharge le LiveData et donc met à jour l'Adapter.
             viewModel.loadAllUsers();
         }
     }
 
+    // ==================== GESTION DES CLICS ====================
 
     /**
      * Gère le clic sur un utilisateur pour lancer ChatActivity.
      */
     @Override
     public void onUserClick(User user) {
-        // Redirection vers l'activité de chat
         if (user.getId() != currentUserId) {
-
             Intent intent = new Intent(requireContext(), ChatActivity.class);
             intent.putExtra("TARGET_USER_ID", user.getId());
             intent.putExtra("TARGET_USER_NAME", user.getFullName());
@@ -124,9 +160,7 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
         }
     }
 
-    // ---------------------------------------------------------------------
-    // 🔔 NOUVEAU : Implémentation de l'interface OnUserClickListener (pour le badge)
-    // ---------------------------------------------------------------------
+    // ==================== GESTION DES MESSAGES NON LUS ====================
 
     /**
      * Appelé par l'Adapter pour obtenir le nombre de messages non lus de l'utilisateur cible.
@@ -136,14 +170,10 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
     @Override
     public int getUnreadCount(int targetUserId) {
         if (currentUserId == DEFAULT_USER_ID) return 0;
-
-        // Appel synchrone au ViewModel pour récupérer le compte
         return viewModel.getUnreadMessageCount(targetUserId);
     }
 
-    // ---------------------------------------------------------------------
-    // MÉTHODES DE SESSION
-    // ---------------------------------------------------------------------
+    // ==================== GESTION DE LA SESSION ====================
 
     /**
      * Récupère l'ID utilisateur réel à partir de SharedPreferences.

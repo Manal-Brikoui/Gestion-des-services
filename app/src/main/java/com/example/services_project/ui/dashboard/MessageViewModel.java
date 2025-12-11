@@ -10,14 +10,11 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.services_project.model.Message;
 import com.example.services_project.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-/**
- * ViewModel pour gérer les données de messagerie et la liste des utilisateurs.
- * Interagit avec MessageRepository.
- */
 public class MessageViewModel extends AndroidViewModel {
 
     private static final String TAG = "MessageViewModel";
@@ -26,7 +23,11 @@ public class MessageViewModel extends AndroidViewModel {
     private final MessageRepository repository;
 
     private final MutableLiveData<List<User>> usersList = new MutableLiveData<>();
+    private final MutableLiveData<List<User>> filteredUsersList = new MutableLiveData<>();
     private final MutableLiveData<List<Message>> conversation = new MutableLiveData<>();
+
+    // Cache de tous les utilisateurs pour le filtrage
+    private List<User> allUsersCached = new ArrayList<>();
 
     private int currentUserId = -1;
 
@@ -35,21 +36,11 @@ public class MessageViewModel extends AndroidViewModel {
         this.repository = new MessageRepository(application);
     }
 
-    // ----------------------------------------------------------------------
-    // --- NOUVEL AJOUT : ACCÈS AU REPOSITORY (pour simulation/tests) ---
-    // ----------------------------------------------------------------------
-
-    /**
-     * Permet d'accéder au Repository depuis l'Activity pour les opérations mock/simulation.
-     * @return L'instance de MessageRepository.
-     */
     public MessageRepository getRepository() {
         return repository;
     }
 
-    // ----------------------------------------------------------------------
-    // --- GESTION DE L'UTILISATEUR COURANT ---
-    // ----------------------------------------------------------------------
+    // ==================== GESTION DE L'UTILISATEUR COURANT ====================
 
     public void setCurrentUserId(int userId) {
         this.currentUserId = userId;
@@ -60,9 +51,7 @@ public class MessageViewModel extends AndroidViewModel {
         return currentUserId;
     }
 
-    // ----------------------------------------------------------------------
-    // --- GESTION DES UTILISATEURS (Contacts / Boîte de réception) ---
-    // ----------------------------------------------------------------------
+    // ==================== CHARGEMENT DES UTILISATEURS ====================
 
     public void loadAllUsers() {
         if (currentUserId == -1) {
@@ -72,7 +61,13 @@ public class MessageViewModel extends AndroidViewModel {
 
         executor.execute(() -> {
             List<User> userList = repository.getRecentConversations(currentUserId);
+
+            // Mise à jour du cache
+            allUsersCached = new ArrayList<>(userList);
+
+            // Mise à jour des LiveData
             usersList.postValue(userList);
+            filteredUsersList.postValue(userList);
         });
     }
 
@@ -80,14 +75,49 @@ public class MessageViewModel extends AndroidViewModel {
         return usersList;
     }
 
+    // ==================== FILTRAGE DES UTILISATEURS ====================
+
+    /**
+     * Retourne la liste filtrée des utilisateurs
+     */
+    public LiveData<List<User>> getFilteredUsersList() {
+        return filteredUsersList;
+    }
+
+    /**
+     * Filtre les utilisateurs en fonction d'une requête de recherche
+     * @param query Le texte de recherche (nom ou email)
+     */
+    public void filterUsers(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            // Si la recherche est vide, afficher tous les utilisateurs
+            filteredUsersList.postValue(allUsersCached);
+            return;
+        }
+
+        String lowerCaseQuery = query.toLowerCase().trim();
+
+        List<User> filtered = new ArrayList<>();
+        for (User user : allUsersCached) {
+            // Filtrer par nom complet ou email
+            String fullName = user.getFullName() != null ? user.getFullName().toLowerCase() : "";
+            String email = user.getEmail() != null ? user.getEmail().toLowerCase() : "";
+
+            if (fullName.contains(lowerCaseQuery) || email.contains(lowerCaseQuery)) {
+                filtered.add(user);
+            }
+        }
+
+        filteredUsersList.postValue(filtered);
+    }
+
+    // ==================== GESTION DES UTILISATEURS ====================
+
     public User getUserById(int userId) {
-        // Exécuté sur le thread principal car cette méthode est synchrone dans le Repository
         return repository.getUserById(userId);
     }
 
-    // ----------------------------------------------------------------------
-    // --- GESTION DES MESSAGES (Conversation) ---
-    // ----------------------------------------------------------------------
+    // ==================== GESTION DES CONVERSATIONS ====================
 
     public void loadConversation(int targetUserId) {
         if (currentUserId == -1) return;
@@ -102,11 +132,8 @@ public class MessageViewModel extends AndroidViewModel {
         return conversation;
     }
 
-    /**
-     * Envoie un nouveau message et recharge la conversation.
-     * @param targetUserId ID du destinataire.
-     * @param content Contenu du message.
-     */
+    // ==================== ENVOI DE MESSAGES ====================
+
     public void sendMessage(int targetUserId, String content) {
         if (currentUserId == -1 || content == null || content.trim().isEmpty()) return;
 
@@ -122,46 +149,30 @@ public class MessageViewModel extends AndroidViewModel {
             boolean success = repository.sendMessage(newMessage);
 
             if (success) {
-                // IMPORTANT : Recharger la conversation après l'envoi pour mettre à jour l'UI
                 loadConversation(targetUserId);
             }
         });
     }
 
-    // ----------------------------------------------------------------------
-    // --- 🔔 NOUVEAU : GESTION DES MESSAGES NON LUS ---
-    // ----------------------------------------------------------------------
+    // ==================== GESTION DES MESSAGES NON LUS ====================
 
-    /**
-     * Récupère le nombre de messages non lus envoyés par l'expéditeur (targetUserId) à l'utilisateur courant.
-     * Cette méthode est appelée de manière synchrone par l'Adapter (via le Fragment).
-     * @param targetUserId L'ID de l'utilisateur qui a envoyé les messages (l'expéditeur B).
-     * @return Le nombre de messages non lus.
-     */
     public int getUnreadMessageCount(int targetUserId) {
         if (currentUserId == -1) {
             return 0;
         }
-        // L'appel au Repository (et au DatabaseHelper) est rapide et synchrone.
         return repository.getUnreadMessageCount(targetUserId, currentUserId);
     }
 
-    /**
-     * Marque tous les messages non lus de l'interlocuteur comme lus.
-     * Doit être appelée lors de l'ouverture de ChatActivity.
-     * @param targetUserId L'ID de l'interlocuteur (l'expéditeur B).
-     */
     public void markMessagesAsRead(int targetUserId) {
         if (currentUserId == -1) return;
 
         executor.execute(() -> {
-            // Le targetUserId est l'expéditeur (SENDER) et currentUserId est le destinataire (RECEIVER).
             int count = repository.markMessagesAsRead(targetUserId, currentUserId);
 
             if (count > 0) {
                 Log.d(TAG, count + " messages de l'utilisateur " + targetUserId + " marqués comme lus.");
 
-                // Recharge la liste des utilisateurs pour mettre à jour le badge du Fragment UsersList
+                // Recharge la liste des utilisateurs pour mettre à jour le badge
                 loadAllUsers();
             }
         });

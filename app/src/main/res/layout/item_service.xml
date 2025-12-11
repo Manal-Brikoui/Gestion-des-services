@@ -1,55 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:layout_marginVertical="4dp"
-    android:background="@drawable/bg_service_item">
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
-    <!-- Image du service -->
-    <ImageView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"> <ImageView
         android:id="@+id/imageService"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginEnd="12dp"
+        android:layout_width="72dp" android:layout_height="72dp" android:layout_marginEnd="16dp"
         android:scaleType="centerCrop"
+        android:background="#E0E0E0"
         android:src="@drawable/ic_placeholder"
         android:contentDescription="@string/service_image" />
 
-    <!-- Texte du service -->
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textCategory"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="COIFFURE"
-            android:textStyle="bold"
-            android:textColor="#4CAF50"
-            android:textSize="12sp"
-            android:layout_marginBottom="2dp" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Coupe de Cheveux"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:layout_marginBottom="2dp" />
+            <TextView
+                android:id="@+id/textCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="COIFFURE"
+                android:textStyle="bold"
+                android:textColor="#00796B" android:textSize="12sp"
+                android:layout_marginBottom="2dp" />
 
-        <TextView
-            android:id="@+id/textDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Coupe de cheveux avec soins du cuir chevelu"
-            android:textColor="#666666"
-            android:textSize="14sp" />
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Coupe de Cheveux"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:textSize="18sp" android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Coupe de cheveux avec soins du cuir chevelu et conseils personnalisés pour l'entretien à domicile."
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:maxLines="2"          android:ellipsize="end"       android:lineSpacingExtra="2dp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

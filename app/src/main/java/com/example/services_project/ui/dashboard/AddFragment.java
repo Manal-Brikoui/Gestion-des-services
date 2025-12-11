@@ -37,9 +37,9 @@ public class AddFragment extends DialogFragment {
     private ImageView imgService;
 
     private ServicesViewModel viewModel;
-    private Uri selectedImageUri = null;      // image choisie par l’utilisateur
-    private Uri currentImageUri = null;       // image existante du service (modification)
-    private int serviceId = -1;               // -1 = ajout, sinon modification
+    private Uri selectedImageUri = null;
+    private Uri currentImageUri = null;
+    private int serviceId = -1;
 
     private ActivityResultLauncher<Intent> galleryLauncher;
 
@@ -84,7 +84,7 @@ public class AddFragment extends DialogFragment {
                 try {
                     currentImageUri = Uri.parse(imageUri);
                     imgService.setImageURI(currentImageUri);
-                    selectedImageUri = currentImageUri; // par défaut = image existante
+                    selectedImageUri = currentImageUri;
                 } catch (Exception e) {
                     e.printStackTrace();
                     selectedImageUri = null;
@@ -133,10 +133,9 @@ public class AddFragment extends DialogFragment {
         int imageResId = 0;
 
         if (selectedImageUri != null && !selectedImageUri.equals(currentImageUri)) {
-            // Nouvelle image choisie → enregistrer
             localPath = saveImageToInternalStorage(selectedImageUri);
         } else {
-            // Pas de nouvelle image → garder l’ancienne
+            //  garder l’ancienne si on n'a pas changer image
             localPath = currentImageUri != null ? currentImageUri.toString() : null;
             imageResId = (localPath == null) ? R.drawable.ic_noimage : 0;
         }
@@ -180,10 +179,9 @@ public class AddFragment extends DialogFragment {
     }
 
     private int getCurrentUserId() {
-        return 1; // TODO : remplacer par le vrai utilisateur
+        return 1;
     }
 
-    // Ajuster la taille du Dialog pour un formulaire plus grand
     @Override
     public void onResume() {
         super.onResume();

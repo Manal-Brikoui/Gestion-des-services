@@ -7,15 +7,15 @@ public class Candidate {
     private int serviceId;
     private String firstName;
     private String lastName;
-    private String dateTime; // Conservez le nom original, il représente probablement la date/heure du SERVICE souhaité
-    private String applicationDate; // NOUVEAU : La date et heure où l'application a été créée/postulée
+    private String dateTime;
+    private String applicationDate; //  La date et heure où l'application a été créée/postulée
     private String location;
     private String phone;
     private String email;
     private String serviceTitle;
     private String status;
 
-    // 1. Constructeur COMPLET / DE LECTURE (12 arguments : 11 + applicationDate)
+    //  Constructeur
     public Candidate(int id, int applicantId, int serviceId, String firstName, String lastName, String dateTime,
                      String applicationDate, String location, String phone, String email, String serviceTitle, String status) {
         this.id = id;
@@ -24,35 +24,31 @@ public class Candidate {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateTime = dateTime;
-        this.applicationDate = applicationDate; // NOUVEAU
+        this.applicationDate = applicationDate;
         this.location = location;
         this.phone = phone;
         this.email = email;
         this.serviceTitle = serviceTitle;
         this.status = status;
     }
-
-    // 2. Constructeur DE CRÉATION (9 arguments : 8 + applicationDate) - Utilisé pour l'insertion
-    // On suppose que applicationDate est passée ici, elle devrait être la date/heure actuelle lors de la postulation.
+//Constructeur
     public Candidate(int applicantId, int serviceId, String firstName, String lastName, String dateTime,
                      String applicationDate, String location, String phone, String email) {
         this(0, applicantId, serviceId, firstName, lastName, dateTime, applicationDate, location, phone, email, null, "PENDING");
     }
 
-    // 3. Constructeur DE LECTURE INTERMÉDIAIRE (11 arguments : 10 + applicationDate)
     public Candidate(int id, int applicantId, int serviceId, String firstName, String lastName, String dateTime,
                      String applicationDate, String location, String phone, String email, String status) {
         this(id, applicantId, serviceId, firstName, lastName, dateTime, applicationDate, location, phone, email, null, status);
     }
 
-    // 4. Constructeur MINIMAL (8 arguments : 7 + applicationDate) - Pour la compatibilité
-    // On suppose qu'ici l'applicationDate n'est pas connue et est initialisée à null ou vide pour compatibilité
+    // Constructeur
     public Candidate(int serviceId, String firstName, String lastName, String dateTime,
                      String location, String phone, String email) {
         this(0, 0, serviceId, firstName, lastName, dateTime, null, location, phone, email, null, "PENDING"); // applicationDate ajouté comme null ici
     }
 
-    // --- GETTERS ---
+    //  GETTERS
     public int getId() { return id; }
     public int getApplicantId() { return applicantId; }
     public int getServiceId() { return serviceId; }
@@ -66,14 +62,14 @@ public class Candidate {
     public String getServiceTitle() { return serviceTitle; }
     public String getStatus() { return status; }
 
-    // --- SETTERS ---
+    // SETTERS
     public void setId(int id) { this.id = id; }
     public void setApplicantId(int applicantId) { this.applicantId = applicantId; }
     public void setServiceId(int serviceId) { this.serviceId = serviceId; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setDateTime(String dateTime) { this.dateTime = dateTime; }
-    public void setApplicationDate(String applicationDate) { this.applicationDate = applicationDate; } // NOUVEAU
+    public void setApplicationDate(String applicationDate) { this.applicationDate = applicationDate; }
     public void setLocation(String location) { this.location = location; }
     public void setPhone(String phone) { this.phone = phone; }
     public void setEmail(String email) { this.email = email; }

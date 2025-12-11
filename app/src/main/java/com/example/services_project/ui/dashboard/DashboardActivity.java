@@ -27,7 +27,7 @@ public class DashboardActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
         replaceFragment(new HomeFragment());
 
-        // Gestion des clics du menu avec if-else
+        // Gestion des clics du menu
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
