@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView; // Import nécessaire pour la flèche de retour
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
     private RecyclerView recyclerView;
     private SearchView searchView;
     private TextView tvNoResults;
+    private ImageView buttonBack; // Déclaration du bouton de retour
 
     private static final String PREF_AUTH_FILE = "AUTH_PREFS";
     private static final String PREF_USER_ID_KEY = "CURRENT_USER_ID";
@@ -72,6 +74,10 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
         recyclerView = root.findViewById(R.id.recyclerViewUsersList);
         searchView = root.findViewById(R.id.searchView);
         tvNoResults = root.findViewById(R.id.tvNoResults);
+        buttonBack = root.findViewById(R.id.buttonBack); // Initialisation du bouton de retour
+
+        // Configuration du bouton de retour
+        setupBackButton(); // Appel de la nouvelle méthode
 
         // Configuration du RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -100,6 +106,24 @@ public class UsersListFragment extends Fragment implements UserAdapter.OnUserCli
         }
 
         return root;
+    }
+
+    /**
+     * Configure le bouton de retour pour revenir au fragment précédent.
+     */
+    private void setupBackButton() {
+        if (buttonBack != null) {
+            buttonBack.setOnClickListener(v -> {
+                // Tente de revenir à l'écran précédent dans la pile de fragments (HomeFragment)
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else {
+                    // Optionnel: Gérer le cas où le fragment n'est pas dans la pile, par exemple
+                    // en revenant à la page d'accueil par défaut si c'est la racine.
+                    Log.w(TAG, "Tentative de popBackStack, mais la pile est vide.");
+                }
+            });
+        }
     }
 
     /**

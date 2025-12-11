@@ -63,7 +63,13 @@ public class AddFragment extends DialogFragment {
         imgService = root.findViewById(R.id.imgService);
 
         // Spinner categories
-        String[] categories = {"COIFFURE", "PLOMBERIE", "MASSAGE", "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE", "DESIGN", "CUISINE"};
+         String[] categories = {
+                 "COIFFURE", "PLOMBERIE", "MASSAGE",
+                "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE",
+                "DESIGN", "CUISINE",
+                "JARDINIER", "MÉCANIQUE", "NETTOYAGE", "SÉCURITÉ"
+        };
+
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categories);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

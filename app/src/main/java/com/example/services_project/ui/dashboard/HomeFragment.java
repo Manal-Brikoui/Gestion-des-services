@@ -120,7 +120,8 @@ public class HomeFragment extends Fragment {
         final String[] categories = {
                 "TOUS", "COIFFURE", "PLOMBERIE", "MASSAGE",
                 "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE",
-                "DESIGN", "CUISINE"
+                "DESIGN", "CUISINE",
+                "JARDINIER", "MÉCANIQUE", "NETTOYAGE", "SÉCURITÉ"
         };
 
         new AlertDialog.Builder(requireContext())

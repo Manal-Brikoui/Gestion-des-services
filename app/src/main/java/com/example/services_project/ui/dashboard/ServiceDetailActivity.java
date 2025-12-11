@@ -45,7 +45,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         textDescription = findViewById(R.id.textDescriptionDetail);
         textPrice = findViewById(R.id.textPriceDetail);
         textLocation = findViewById(R.id.textLocationDetail);
-        textPostedBy = findViewById(R.id.textPostedBy);
+        textPostedBy = findViewById(R.id.textPostedBy); // Ajout du TextView pour afficher le nom et prénom
         applyButton = findViewById(R.id.buttonApply);
 
         // Récupération du service
@@ -186,17 +186,17 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             } else {
                 Candidate candidate = new Candidate(
-                        -1,
-                        -1,
-                        service.getId(),
+                        -1,                        // id
+                        -1,                        // applicantId
+                        service.getId(),           // serviceId
                         prenom,
                         nom,
                         date + " " + heure,
                         localisation,
                         phone,
                         email,
-                        null,
-                        "PENDING"
+                        null,                      // serviceTitle
+                        "PENDING"                  // status
                 );
 
                 viewModel.addApplicant(service.getId(), candidate);

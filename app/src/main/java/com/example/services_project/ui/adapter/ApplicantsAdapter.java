@@ -48,6 +48,7 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
         holder.dateTime.setText(candidate.getDateTime());
         holder.location.setText(candidate.getLocation());
         holder.phone.setText(candidate.getPhone());
+        holder.email.setText(candidate.getEmail());
         holder.status.setText(candidate.getStatus());
 
         // Logique des boutons ACCEPT/REJECT
@@ -71,7 +72,8 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
     }
     // ViewHolder
     public static class CandidateViewHolder extends RecyclerView.ViewHolder {
-        public TextView name, dateTime, location, phone, status;
+        public TextView name, dateTime, location, phone, email, status;
+
         public Button btnAccept, btnReject; //  Les deux boutons sont ici
 
         public CandidateViewHolder(View itemView) {
@@ -80,6 +82,7 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
             dateTime = itemView.findViewById(R.id.textApplicantDateTime);
             location = itemView.findViewById(R.id.textApplicantLocation);
             phone = itemView.findViewById(R.id.textApplicantPhone);
+            email = itemView.findViewById(R.id.textApplicantEmail); // ⬅️ AJOUTEZ CETTE LIGNE ICI
             status = itemView.findViewById(R.id.textApplicantStatus);
 
             btnAccept = itemView.findViewById(R.id.btnAcceptApplicant);

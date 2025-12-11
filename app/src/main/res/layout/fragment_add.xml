@@ -2,102 +2,134 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:background="#F5F5F5"
+    android:padding="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <!-- Titre du formulaire -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ajouter un Service"
-            android:textSize="20sp"
+            android:text="Ajouter une Offre de Service"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/purplePrimary"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp" />
+            android:textColor="#212121"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
 
-        <!-- Image sélectionnable -->
         <ImageView
             android:id="@+id/imgService"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/ic_addimage"
             android:scaleType="centerCrop"
             android:background="@drawable/rounded_image"
             android:contentDescription="Image du service"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="32dp" />
 
-        <!-- Champ Titre -->
         <EditText
             android:id="@+id/edtTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Titre"
-            android:padding="10dp"
+            android:hint="Titre du service (ex: Coupe de Cheveux Homme)"
+            android:padding="14dp"
             android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="16dp"
+            android:inputType="textCapSentences"
+            android:textSize="16sp"/>
 
-        <!-- Champ Description -->
         <EditText
             android:id="@+id/edtDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description"
-            android:padding="10dp"
+            android:hint="Description détaillée du service offert"
+            android:minLines="3"
+            android:gravity="top"
+            android:padding="14dp"
             android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="16dp"
+            android:inputType="textMultiLine|textCapSentences"
+            android:textSize="16sp"/>
 
-        <!-- Champ Localisation -->
-        <EditText
-            android:id="@+id/edtLocation"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Localisation"
-            android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Champ Prix -->
-        <EditText
-            android:id="@+id/edtPrice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Prix"
-            android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Champ Détails supplémentaires -->
-        <EditText
-            android:id="@+id/edtMoreDetails"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Détails supplémentaires"
-            android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Spinner catégorie -->
+            android:text="Catégorie de service"
+            android:textColor="#616161"
+            android:textSize="14sp"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/spinnerCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rounded_edittext"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"/>
 
-        <!-- Bouton Ajouter -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/edtLocation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Localisation"
+                android:padding="14dp"
+                android:background="@drawable/rounded_edittext"
+                android:layout_marginEnd="8dp"
+                android:inputType="textPostalAddress"
+                android:textSize="16sp"/>
+
+            <EditText
+                android:id="@+id/edtPrice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Prix (€)"
+                android:padding="14dp"
+                android:background="@drawable/rounded_edittext"
+                android:layout_marginStart="8dp"
+                android:inputType="numberDecimal"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+
+        <EditText
+            android:id="@+id/edtMoreDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contact ou Lien (Optionnel)"
+            android:padding="14dp"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="32dp"
+            android:inputType="textUri"
+            android:textSize="16sp"/>
+
         <Button
             android:id="@+id/btnAddService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ajouter"
-            android:backgroundTint="@color/purplePrimary"
-            android:textColor="@android:color/white" />
+            android:text="AJOUTER LE SERVICE"
+            android:textAllCaps="true"
+            android:backgroundTint="#673AB7"
+
+            android:textColor="@android:color/white"
+            android:paddingVertical="14dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:elevation="4dp" />
 
     </LinearLayout>
 </ScrollView>
