@@ -1,105 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="20dp">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F5F5F5"
+    android:padding="0dp">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:background="@drawable/bg_dialog_rounded"
-        android:padding="20dp">
+        android:padding="24dp"
+        android:elevation="8dp">
 
-        <!-- Bouton Fermer -->
-        <ImageView
-            android:id="@+id/btnClose"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end"
-            android:src="@drawable/ic_close"
-            android:contentDescription="Fermer"
-            android:padding="4dp"
-            android:clickable="true"
-            android:focusable="true" />
-
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Formulaire de candidature"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#000"
-            android:gravity="center"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Formulaire de candidature"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#212121"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+
+            <ImageView
+                android:id="@+id/btnClose"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_close"
+                android:contentDescription="Fermer"
+                android:padding="4dp"
+                app:tint="#757575"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EEEEEE"
+            android:layout_marginBottom="24dp" />
 
         <EditText
             android:id="@+id/editNom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nom"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="12dp"
             android:inputType="textPersonName"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp"
+            android:drawableStart="@drawable/ic_profile_18dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="#6200EE"/>
 
         <EditText
             android:id="@+id/editPrenom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Prénom"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="12dp"
             android:inputType="textPersonName"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp"
+            android:drawableStart="@drawable/ic_profile_18dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="#6200EE"/>
 
         <EditText
             android:id="@+id/editEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="12dp"
             android:inputType="textEmailAddress"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp"
+            android:drawableStart="@drawable/ic_email_18dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="#6200EE"/>
 
         <EditText
             android:id="@+id/editPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Téléphone"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="12dp"
             android:inputType="phone"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp"
+            android:drawableStart="@drawable/ic_phone"
+            android:drawablePadding="10dp"
+            android:drawableTint="#6200EE"/>
 
-        <EditText
-            android:id="@+id/editDate"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Date"
-            android:focusable="false"
-            android:clickable="true"
-            android:layout_marginBottom="10dp" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
 
-        <EditText
-            android:id="@+id/editHeure"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Heure"
-            android:focusable="false"
-            android:clickable="true"
-            android:layout_marginBottom="10dp" />
+            <EditText
+                android:id="@+id/editDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Date"
+                android:background="@drawable/bg_edittext_rounded"
+                android:padding="12dp"
+                android:focusable="false"
+                android:clickable="true"
+                android:layout_marginEnd="6dp"
+                android:drawableStart="@drawable/ic_time_18dp"
+                android:drawablePadding="10dp"
+                android:drawableTint="#6200EE"/>
+
+            <EditText
+                android:id="@+id/editHeure"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Heure"
+                android:background="@drawable/bg_edittext_rounded"
+                android:padding="12dp"
+                android:focusable="false"
+                android:clickable="true"
+                android:layout_marginStart="6dp"
+                android:drawableStart="@drawable/ic_time_18dp"
+                android:drawablePadding="10dp"
+                android:drawableTint="#6200EE"/>
+        </LinearLayout>
 
         <EditText
             android:id="@+id/editLocalisation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Localisation"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="12dp"
             android:inputType="text"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="32dp"
+            android:drawableStart="@drawable/ic_location_18"
+            android:drawablePadding="10dp"
+            android:drawableTint="#6200EE"/>
 
         <Button
             android:id="@+id/btnPostuler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Postuler"
+            android:text="Postuler pour ce service"
             android:textAllCaps="false"
-            android:backgroundTint="#6200EE"
+            android:backgroundTint="#00796B"
             android:textColor="#FFFFFF"
-            android:padding="10dp" />
+            android:paddingVertical="14dp"
+            android:textSize="16sp"
+            android:elevation="4dp" />
 
     </LinearLayout>
 </ScrollView>
