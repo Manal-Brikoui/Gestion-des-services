@@ -240,6 +240,7 @@ public class HomeFragmentRepository {
                             cursor.getString(cursor.getColumnIndexOrThrow("firstName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("lastName")),
                             cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
+
                             cursor.getString(cursor.getColumnIndexOrThrow("applicationDate")),
                             cursor.getString(cursor.getColumnIndexOrThrow("location")),
                             cursor.getString(cursor.getColumnIndexOrThrow("phone")),

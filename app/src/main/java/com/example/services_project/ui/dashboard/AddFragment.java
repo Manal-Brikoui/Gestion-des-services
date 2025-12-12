@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -35,11 +36,13 @@ public class AddFragment extends DialogFragment {
     private Spinner spinnerCategory;
     private Button btnSaveService;
     private ImageView imgService;
+    private TextView txtDialogTitle;  // AJOUTÉ
 
     private ServicesViewModel viewModel;
     private Uri selectedImageUri = null;
     private Uri currentImageUri = null;
     private int serviceId = -1;
+    private boolean isEditMode = false;  // AJOUTÉ
 
     private ActivityResultLauncher<Intent> galleryLauncher;
 
@@ -53,6 +56,7 @@ public class AddFragment extends DialogFragment {
         viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
         // Initialisation UI
+        txtDialogTitle = root.findViewById(R.id.txtDialogTitle);  // AJOUTÉ
         edtTitle = root.findViewById(R.id.edtTitle);
         edtDescription = root.findViewById(R.id.edtDescription);
         edtLocation = root.findViewById(R.id.edtLocation);
@@ -63,8 +67,8 @@ public class AddFragment extends DialogFragment {
         imgService = root.findViewById(R.id.imgService);
 
         // Spinner categories
-         String[] categories = {
-                 "COIFFURE", "PLOMBERIE", "MASSAGE",
+        String[] categories = {
+                "COIFFURE", "PLOMBERIE", "MASSAGE",
                 "ÉLECTRICIEN", "PÉDIATRIE", "INFORMATIQUE",
                 "DESIGN", "CUISINE",
                 "JARDINIER", "MÉCANIQUE", "NETTOYAGE", "SÉCURITÉ"
@@ -75,8 +79,20 @@ public class AddFragment extends DialogFragment {
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterSpinner);
 
-        // Arguments pour modification
+        // NOUVEAU : Vérifier si on est en mode édition
         if (getArguments() != null) {
+            isEditMode = getArguments().getBoolean("isEditMode", false);
+
+            // Changer le titre et le bouton selon le mode
+            if (isEditMode) {
+                txtDialogTitle.setText("Modifier l'Offre de Service");
+                btnSaveService.setText("MODIFIER LE SERVICE");
+            } else {
+                txtDialogTitle.setText("Ajouter une Offre de Service");
+                btnSaveService.setText("AJOUTER LE SERVICE");
+            }
+
+            // Charger les données pour modification
             serviceId = getArguments().getInt("serviceId", -1);
             edtTitle.setText(getArguments().getString("title", ""));
             edtDescription.setText(getArguments().getString("description", ""));
@@ -141,7 +157,7 @@ public class AddFragment extends DialogFragment {
         if (selectedImageUri != null && !selectedImageUri.equals(currentImageUri)) {
             localPath = saveImageToInternalStorage(selectedImageUri);
         } else {
-            //  garder l’ancienne si on n'a pas changer image
+            // garder l'ancienne si on n'a pas changé l'image
             localPath = currentImageUri != null ? currentImageUri.toString() : null;
             imageResId = (localPath == null) ? R.drawable.ic_noimage : 0;
         }

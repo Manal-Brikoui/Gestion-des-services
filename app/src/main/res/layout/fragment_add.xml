@@ -12,6 +12,7 @@
         android:padding="24dp">
 
         <TextView
+            android:id="@+id/txtDialogTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ajouter une Offre de Service"
@@ -124,7 +125,6 @@
             android:text="AJOUTER LE SERVICE"
             android:textAllCaps="true"
             android:backgroundTint="#673AB7"
-
             android:textColor="@android:color/white"
             android:paddingVertical="14dp"
             android:textSize="18sp"

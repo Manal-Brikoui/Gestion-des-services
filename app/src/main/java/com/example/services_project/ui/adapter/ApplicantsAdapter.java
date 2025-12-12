@@ -4,8 +4,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.services_project.R;
 import com.example.services_project.model.Candidate;
@@ -16,7 +19,6 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
     private List<Candidate> candidateList;
     private final OnApplicantActionListener listener;
 
-    // Interface de communication pour les actions (Accept/Reject)
     public interface OnApplicantActionListener {
         void onAccept(Candidate candidate);
         void onReject(Candidate candidate);
@@ -43,46 +45,95 @@ public class ApplicantsAdapter extends RecyclerView.Adapter<ApplicantsAdapter.Ca
     public void onBindViewHolder(@NonNull CandidateViewHolder holder, int position) {
         Candidate candidate = candidateList.get(position);
 
-        // Remplissage des champs du candidat
-        holder.name.setText(String.format("%s %s", candidate.getFirstName(), candidate.getLastName()));
+        // Nom complet
+        String firstName = candidate.getFirstName() != null ? candidate.getFirstName() : "";
+        String lastName = candidate.getLastName() != null ? candidate.getLastName() : "";
+        String fullName = String.format("%s %s", firstName, lastName).trim();
+        holder.name.setText(fullName);
+
+        // Initiale
+        String initial = !fullName.isEmpty() ? fullName.substring(0, 1).toUpperCase() : "?";
+        holder.initial.setText(initial);
+
+        // Détails
         holder.dateTime.setText(candidate.getDateTime());
         holder.location.setText(candidate.getLocation());
         holder.phone.setText(candidate.getPhone());
         holder.email.setText(candidate.getEmail());
-        holder.status.setText(candidate.getStatus());
 
-        // Logique des boutons ACCEPT/REJECT
-        if ("PENDING".equals(candidate.getStatus())) {
-            holder.btnAccept.setVisibility(View.VISIBLE);
-            holder.btnReject.setVisibility(View.VISIBLE);
+        // Statut
+        String status = candidate.getStatus() != null ? candidate.getStatus() : "PENDING";
+        holder.status.setText(getStatusText(status));
+        updateStatusBadge(holder.status, status);
 
-            // Logique de clic : appelle la méthode définie dans ApplicantsDialogFragment
+        // Gestion de l'expansion
+        boolean isExpanded = candidate.isExpanded();
+        holder.layoutDetails.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        holder.imgArrow.setRotation(isExpanded ? 180 : 0);
+
+        // Clic pour expand/collapse
+        holder.layoutCompact.setOnClickListener(v -> {
+            candidate.setExpanded(!candidate.isExpanded());
+            notifyItemChanged(position);
+        });
+
+        // Boutons selon le statut
+        if ("PENDING".equalsIgnoreCase(status)) {
+            holder.layoutButtons.setVisibility(View.VISIBLE);
             holder.btnAccept.setOnClickListener(v -> listener.onAccept(candidate));
             holder.btnReject.setOnClickListener(v -> listener.onReject(candidate));
-
         } else {
-            holder.btnAccept.setVisibility(View.GONE);
-            holder.btnReject.setVisibility(View.GONE);
+            holder.layoutButtons.setVisibility(View.GONE);
+        }
+    }
+
+    private String getStatusText(String status) {
+        if ("ACCEPTED".equalsIgnoreCase(status)) return "Accepté";
+        if ("REJECTED".equalsIgnoreCase(status)) return "Refusé";
+        return "En attente";
+    }
+
+    private void updateStatusBadge(TextView statusView, String status) {
+        if ("ACCEPTED".equalsIgnoreCase(status)) {
+            statusView.setTextColor(0xFF2E7D32); // Vert foncé
+            statusView.setBackgroundResource(R.drawable.button_accept);
+        } else if ("REJECTED".equalsIgnoreCase(status)) {
+            statusView.setTextColor(0xFFC62828); // Rouge foncé
+            statusView.setBackgroundResource(R.drawable.button_reject);
+        } else {
+            statusView.setTextColor(0xFFF57C00); // Orange
+            statusView.setBackgroundResource(R.drawable.status_badge_pending);
         }
     }
 
     @Override
     public int getItemCount() {
-        return candidateList.size();
+        return candidateList != null ? candidateList.size() : 0;
     }
-    // ViewHolder
-    public static class CandidateViewHolder extends RecyclerView.ViewHolder {
-        public TextView name, dateTime, location, phone, email, status;
 
-        public Button btnAccept, btnReject; //  Les deux boutons sont ici
+    public static class CandidateViewHolder extends RecyclerView.ViewHolder {
+        CardView cardApplicant;
+        LinearLayout layoutCompact, layoutDetails, layoutButtons;
+        TextView name, dateTime, location, phone, email, status, initial;
+        ImageView imgArrow;
+        Button btnAccept, btnReject;
 
         public CandidateViewHolder(View itemView) {
             super(itemView);
+
+            cardApplicant = itemView.findViewById(R.id.cardApplicant);
+            layoutCompact = itemView.findViewById(R.id.layoutCompact);
+            layoutDetails = itemView.findViewById(R.id.layoutDetails);
+            layoutButtons = itemView.findViewById(R.id.layoutButtons);
+
+            initial = itemView.findViewById(R.id.textApplicantInitial);
             name = itemView.findViewById(R.id.textApplicantName);
+            imgArrow = itemView.findViewById(R.id.imgExpandArrow);
+
             dateTime = itemView.findViewById(R.id.textApplicantDateTime);
             location = itemView.findViewById(R.id.textApplicantLocation);
             phone = itemView.findViewById(R.id.textApplicantPhone);
-            email = itemView.findViewById(R.id.textApplicantEmail); // ⬅️ AJOUTEZ CETTE LIGNE ICI
+            email = itemView.findViewById(R.id.textApplicantEmail);
             status = itemView.findViewById(R.id.textApplicantStatus);
 
             btnAccept = itemView.findViewById(R.id.btnAcceptApplicant);

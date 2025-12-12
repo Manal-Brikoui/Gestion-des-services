@@ -77,6 +77,7 @@ public class ServicesFragment extends Fragment {
         AddFragment fragment = new AddFragment();
 
         Bundle args = new Bundle();
+        args.putBoolean("isEditMode", true); // LIGNE AJOUTÉE - ESSENTIELLE !
         args.putInt("serviceId", service.getId());
         args.putString("title", service.getTitle());
         args.putString("description", service.getDescription());

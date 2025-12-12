@@ -3,6 +3,7 @@ package com.example.services_project.ui.dashboard;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.util.Log; // Ajouté pour le débogage
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,16 +36,11 @@ public class ApplyDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        // ATTENTION: Assurez-vous que dialog_apply_service.xml est le fichier qui contient btnClose
         View view = inflater.inflate(R.layout.dialog_apply_service, container, false);
 
         // Récupération des vues
-        editNom = view.findViewById(R.id.editNom);
-        editPrenom = view.findViewById(R.id.editPrenom);
-        editEmail = view.findViewById(R.id.editEmail);
-        editPhone = view.findViewById(R.id.editPhone);
-        editDate = view.findViewById(R.id.editDate);
-        editHeure = view.findViewById(R.id.editHeure);
-        editLocalisation = view.findViewById(R.id.editLocalisation);
+        // ... (autres champs)
         btnPostuler = view.findViewById(R.id.btnPostuler);
         btnClose = view.findViewById(R.id.btnClose);
 
@@ -54,11 +50,24 @@ public class ApplyDialogFragment extends DialogFragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
-        // Fermer le modal
-        btnClose.setOnClickListener(v -> dismiss());
+        // =======================================================
+        // LOGIQUE DE FERMETURE DU DIALOG (AVEC DEBUG)
+        // =======================================================
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> {
+                Log.d("APPLY_DIALOG", "Bouton de fermeture cliqué. Tentative de dismiss().");
+                dismiss(); // Doit fermer le DialogFragment
+            });
+        } else {
+            // C'EST LÀ QUE L'ERREUR DE ID/LAYOUT DOIT ÊTRE CONFIRMÉE
+            Log.e("APPLY_DIALOG", "Erreur critique: R.id.btnClose non trouvé. Le dialogue ne se fermera pas via la croix.");
+        }
+        // =======================================================
+
 
         // DatePicker
         editDate.setOnClickListener(v -> {
+            // ... (logique DatePicker)
             final Calendar today = Calendar.getInstance();
             today.set(Calendar.HOUR_OF_DAY, 0);
             today.set(Calendar.MINUTE, 0);
@@ -72,16 +81,16 @@ public class ApplyDialogFragment extends DialogFragment {
             DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                     (view1, selectedYear, selectedMonth, selectedDay) -> {
                         editDate.setText(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
-                        editHeure.setText(""); // réinitialiser l'heure si date change
+                        editHeure.setText("");
                     }, year, month, day);
 
-            //  Interdire les dates passées
             datePickerDialog.getDatePicker().setMinDate(today.getTimeInMillis());
             datePickerDialog.show();
         });
 
-        // TimePicker : interdit les heures passées si date = aujourd'hui
+        // TimePicker
         editHeure.setOnClickListener(v -> {
+            // ... (logique TimePicker)
             String dateText = editDate.getText().toString().trim();
             if (dateText.isEmpty()) {
                 Toast.makeText(requireContext(), "Veuillez choisir une date d'abord", Toast.LENGTH_SHORT).show();
@@ -102,7 +111,6 @@ public class ApplyDialogFragment extends DialogFragment {
                         Calendar selectedDateTime = Calendar.getInstance();
                         selectedDateTime.set(selYear, selMonth, selDay, selectedHour, selectedMinute);
 
-                        // Vérifier si date = aujourd'hui
                         Calendar today = Calendar.getInstance();
                         if (selYear == today.get(Calendar.YEAR)
                                 && selMonth == today.get(Calendar.MONTH)
@@ -122,6 +130,7 @@ public class ApplyDialogFragment extends DialogFragment {
 
         // Bouton Postuler
         btnPostuler.setOnClickListener(v -> {
+            // ... (logique de validation et soumission)
             String nom = editNom.getText().toString().trim();
             String prenom = editPrenom.getText().toString().trim();
             String email = editEmail.getText().toString().trim();
@@ -151,7 +160,8 @@ public class ApplyDialogFragment extends DialogFragment {
             Toast.makeText(requireContext(),
                     "Candidature envoyée pour : " + nom + " " + prenom,
                     Toast.LENGTH_LONG).show();
-            dismiss();
+
+            dismiss(); // Fermeture après succès
         });
 
         // Fond transparent

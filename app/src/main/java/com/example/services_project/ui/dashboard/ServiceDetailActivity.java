@@ -189,13 +189,13 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         -1,                        // id
                         -1,                        // applicantId
                         service.getId(),           // serviceId
-                        prenom,
-                        nom,
-                        date + " " + heure,
-                        localisation,
-                        phone,
-                        email,
-                        null,                      // serviceTitle
+                        prenom,                    // firstName
+                        nom,                       // lastName
+                        date + " " + heure,        // dateTime
+                        null,                      // applicationDate (sera rempli par le système)
+                        localisation,              // location ✅ MAINTENANT À LA BONNE POSITION
+                        phone,                     // phone
+                        email,                     // email
                         "PENDING"                  // status
                 );
 
