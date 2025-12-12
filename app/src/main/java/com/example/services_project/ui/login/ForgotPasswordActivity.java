@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.content.Intent;
 
@@ -20,6 +21,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private EditText edtNewPassword, edtConfirmPassword;
     private Button btnResetPassword;
+    private ImageView btnBackToLogin;
     private UserSessionManager session;
     private LoginViewModel loginViewModel;
 
@@ -34,6 +36,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         edtNewPassword = findViewById(R.id.edtNewPassword);
         edtConfirmPassword = findViewById(R.id.edtConfirmPassword);
         btnResetPassword = findViewById(R.id.btnResetPassword);
+        btnBackToLogin = findViewById(R.id.btnBackToLogin);
+
+        // 🔥 Bouton retour vers Login
+        btnBackToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
         // Session
         session = new UserSessionManager(this);

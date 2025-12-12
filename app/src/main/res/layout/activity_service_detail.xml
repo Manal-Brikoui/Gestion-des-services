@@ -28,7 +28,7 @@
             android:layout_marginTop="20dp"
             android:padding="8dp"
             android:background="@drawable/circle_white_translucent"
-            android:src="@drawable/ic_back"
+            android:src="@drawable/ic_arrow_back"
             android:elevation="8dp"
             android:scaleType="fitCenter"
             android:clickable="true"

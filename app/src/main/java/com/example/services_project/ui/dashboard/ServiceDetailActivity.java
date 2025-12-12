@@ -17,8 +17,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.services_project.R;
 import com.example.services_project.model.Candidate;
 import com.example.services_project.model.Service;
-import com.example.services_project.model.User;  // Import du modèle User pour obtenir le nom et prénom
-import com.example.services_project.data.DatabaseHelper; // Import de DatabaseHelper
+import com.example.services_project.model.User;
+import com.example.services_project.data.DatabaseHelper;
 
 import java.util.Calendar;
 
@@ -45,7 +45,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         textDescription = findViewById(R.id.textDescriptionDetail);
         textPrice = findViewById(R.id.textPriceDetail);
         textLocation = findViewById(R.id.textLocationDetail);
-        textPostedBy = findViewById(R.id.textPostedBy); // Ajout du TextView pour afficher le nom et prénom
+        textPostedBy = findViewById(R.id.textPostedBy);
         applyButton = findViewById(R.id.buttonApply);
 
         // Récupération du service
@@ -75,9 +75,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
             textLocation.setText("Localisation : " + (service.getLocation() != null ? service.getLocation() : ""));
 
             // Affichage du nom de la personne qui a posté le service
-            User user = getUserById(service.getUserId()); // Récupérer l'utilisateur par son ID
+            User user = getUserById(service.getUserId());
             if (user != null) {
-                textPostedBy.setText("Posté par : " + user.getFullName()); // Afficher le nom complet de l'utilisateur
+                textPostedBy.setText("Posté par : " + user.getFullName());
             } else {
                 textPostedBy.setText("Posté par : Inconnu");
             }
@@ -90,8 +90,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
     // Méthode pour récupérer un utilisateur par son ID
     private User getUserById(int userId) {
-        DatabaseHelper dbHelper = new DatabaseHelper(this); // Créez un objet DatabaseHelper
-        return dbHelper.getUserById(userId); // Appelle la méthode getUserById de DatabaseHelper pour récupérer l'utilisateur
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        return dbHelper.getUserById(userId);
     }
 
     private void showApplyDialog(Service service) {
@@ -126,7 +126,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
             DatePickerDialog dpd = new DatePickerDialog(ServiceDetailActivity.this,
                     (view, y, m, d) -> {
                         editDate.setText(String.format("%02d/%02d/%04d", d, m + 1, y));
-                        editHeure.setText(""); // Réinitialiser l'heure si date change
+                        editHeure.setText("");
                     },
                     year, month, day);
 
@@ -185,6 +185,11 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 Toast.makeText(ServiceDetailActivity.this,
                         "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             } else {
+                // Pour afficher l'initiale du nom dans l'adapter
+                String fullName = prenom + " " + nom;
+                String initial = fullName.length() > 0 ?
+                        String.valueOf(fullName.charAt(0)).toUpperCase() : "?";
+
                 Candidate candidate = new Candidate(
                         -1,                        // id
                         -1,                        // applicantId
@@ -192,8 +197,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         prenom,                    // firstName
                         nom,                       // lastName
                         date + " " + heure,        // dateTime
-                        null,                      // applicationDate (sera rempli par le système)
-                        localisation,              // location ✅ MAINTENANT À LA BONNE POSITION
+                        null,                      // applicationDate
+                        localisation,              // location
                         phone,                     // phone
                         email,                     // email
                         "PENDING"                  // status
