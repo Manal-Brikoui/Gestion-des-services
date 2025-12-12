@@ -1,83 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    tools:context=".ui.login.LoginActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <!-- Image de fond -->
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:layout_height="match_parent"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"
+        android:contentDescription="Background"/>
 
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@drawable/logo"
-            android:contentDescription="@string/app_name"
-            android:layout_gravity="center"
-            android:layout_marginBottom="16dp"/>
+    <!-- Overlay semi-transparent pour améliorer la lisibilité -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"/>
 
-        <TextView
-            android:id="@+id/tvDescription"
+    <!-- Contenu scrollable -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Trouvez et réservez facilement des services près de chez vous !"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp"/>
+            android:padding="24dp"
+            android:gravity="center_horizontal">
 
-        <EditText
-            android:id="@+id/edtEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:background="@drawable/edt_rounded"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
+            <!-- Logo -->
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/logo"
+                android:contentDescription="@string/app_name"
+                android:layout_gravity="center"
+                android:layout_marginTop="-25dp"
+                android:layout_marginBottom="12dp"/>
 
-        <EditText
-            android:id="@+id/edtPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mot de passe"
-            android:inputType="textPassword"
-            android:background="@drawable/edt_rounded"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp"/>
+            <!-- Cadre transparent contenant tous les champs -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card_background_transparent"
+                android:padding="24dp"
+                android:elevation="8dp">
 
-        <!-- 🔹 Mot de passe oublié ? -->
-        <TextView
-            android:id="@+id/tvForgotPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mot de passe oublié ?"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="14sp"
-            android:layout_marginBottom="24dp"
-            android:clickable="true"
-            android:focusable="true"/>
+                <!-- Description -->
+                <TextView
+                    android:id="@+id/tvDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Trouvez et réservez facilement des services près de chez vous !"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="24dp"
+                    android:shadowColor="#000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"/>
 
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Se connecter"
-            android:background="@drawable/btn_rounded"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="16dp"/>
+                <!-- Email -->
+                <EditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:textColorHint="#000000"
+                    android:textColor="#000000"
+                    android:background="@drawable/edt_rounded_transparent"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"/>
 
-        <Button
-            android:id="@+id/btnRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Créer un compte"
-            android:background="@drawable/btn_rounded_green"
-            android:textColor="@android:color/white"/>
+                <!-- Mot de passe -->
+                <EditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mot de passe"
+                    android:inputType="textPassword"
+                    android:textColorHint="#000000"
+                    android:textColor="#000000"
+                    android:background="@drawable/edt_rounded_transparent"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"/>
 
-    </LinearLayout>
-</ScrollView>
+                <!-- Mot de passe oublié ? -->
+                <TextView
+                    android:id="@+id/tvForgotPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mot de passe oublié ?"
+                    android:textColor="#3A1F02"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="24dp"
+                    android:layout_gravity="end"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:shadowColor="#000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"/>
+
+                <!-- Bouton Se connecter -->
+                <Button
+                    android:id="@+id/btnLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Se connecter"
+                    android:background="@drawable/btn_rounded_violet"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:padding="14dp"
+                    android:elevation="4dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Bouton Créer un compte -->
+                <Button
+                    android:id="@+id/btnRegister"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Créer un compte"
+                    android:background="@drawable/btn_rounded_green"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:padding="14dp"
+                    android:elevation="4dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>
