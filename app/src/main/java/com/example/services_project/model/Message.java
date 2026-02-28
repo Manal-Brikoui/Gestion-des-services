@@ -2,13 +2,13 @@ package com.example.services_project.model;
 
 public class Message {
     private int id;
-    private int senderId;    // ID de l'expéditeur
-    private int receiverId;  // ID du destinataire
+    private int senderId;
+    private int receiverId;
     private String content;   // Contenu du message
     private String timestamp; // Date et heure d'envoi
     private boolean isRead;
 
-    // Constructeur complet
+
     public Message(int id, int senderId, int receiverId, String content, String timestamp, boolean isRead) {
         this.id = id;
         this.senderId = senderId;
@@ -18,7 +18,7 @@ public class Message {
         this.isRead = isRead;
     }
 
-    // Constructeur pour l'envoi
+
     public Message(int senderId, int receiverId, String content) {
         this.senderId = senderId;
         this.receiverId = receiverId;

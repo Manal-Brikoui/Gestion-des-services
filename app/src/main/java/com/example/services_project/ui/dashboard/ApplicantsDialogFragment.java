@@ -67,7 +67,7 @@ public class ApplicantsDialogFragment extends DialogFragment {
         // Initialisation du ViewModel ici pour l'utiliser dans le listener
         viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
-        // Instancier l'Adapter avec la logique ACCEPT / REJECT
+        // Instancier l'Adapter avec la logique ACCEPT ou REJECT
         adapter = new ApplicantsAdapter(new ArrayList<>(), new ApplicantsAdapter.OnApplicantActionListener() {
             @Override
             public void onAccept(Candidate candidate) {

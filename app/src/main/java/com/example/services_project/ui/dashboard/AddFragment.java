@@ -36,13 +36,14 @@ public class AddFragment extends DialogFragment {
     private Spinner spinnerCategory;
     private Button btnSaveService;
     private ImageView imgService;
-    private TextView txtDialogTitle;  // AJOUTÉ
+    private TextView txtDialogTitle;
 
     private ServicesViewModel viewModel;
     private Uri selectedImageUri = null;
     private Uri currentImageUri = null;
     private int serviceId = -1;
-    private boolean isEditMode = false;  // AJOUTÉ
+    private boolean isEditMode = false;
+    private int originalUserId = -1; //  Pour garder l'userId original
 
     private ActivityResultLauncher<Intent> galleryLauncher;
 
@@ -56,7 +57,7 @@ public class AddFragment extends DialogFragment {
         viewModel = new ViewModelProvider(requireActivity()).get(ServicesViewModel.class);
 
         // Initialisation UI
-        txtDialogTitle = root.findViewById(R.id.txtDialogTitle);  // AJOUTÉ
+        txtDialogTitle = root.findViewById(R.id.txtDialogTitle);
         edtTitle = root.findViewById(R.id.edtTitle);
         edtDescription = root.findViewById(R.id.edtDescription);
         edtLocation = root.findViewById(R.id.edtLocation);
@@ -79,7 +80,7 @@ public class AddFragment extends DialogFragment {
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterSpinner);
 
-        // NOUVEAU : Vérifier si on est en mode édition
+        // Vérifier si on est en mode édition
         if (getArguments() != null) {
             isEditMode = getArguments().getBoolean("isEditMode", false);
 
@@ -94,6 +95,8 @@ public class AddFragment extends DialogFragment {
 
             // Charger les données pour modification
             serviceId = getArguments().getInt("serviceId", -1);
+            originalUserId = getArguments().getInt("userId", -1); // ✅ AJOUTÉ : Récupérer l'userId original
+
             edtTitle.setText(getArguments().getString("title", ""));
             edtDescription.setText(getArguments().getString("description", ""));
             edtLocation.setText(getArguments().getString("location", ""));
@@ -162,7 +165,13 @@ public class AddFragment extends DialogFragment {
             imageResId = (localPath == null) ? R.drawable.ic_noimage : 0;
         }
 
-        int userId = getCurrentUserId();
+        // Utiliser l'userId original en mode édition
+        int userId;
+        if (isEditMode && originalUserId != -1) {
+            userId = originalUserId; // Garder l'ancien userId
+        } else {
+            userId = getCurrentUserId(); // Nouveau service, prendre l'userId actuel
+        }
 
         Service service = new Service(serviceId, category, title, description, imageResId, localPath, location, price, moreDetails, userId);
 

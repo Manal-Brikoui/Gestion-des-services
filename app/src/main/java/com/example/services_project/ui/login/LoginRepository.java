@@ -13,30 +13,24 @@ public class LoginRepository {
         dbHelper = new DatabaseHelper(context);
     }
 
-    // -------------------------------------------------------------------
-    // ✔ Vérifie si l'email et le mot de passe sont corrects (Login)
-    // -------------------------------------------------------------------
+    //  Vérifie si l'email et le mot de passe sont corrects
     public boolean login(String email, String password) {
         return dbHelper.checkUser(email, password);
     }
 
-    // -------------------------------------------------------------------
-    // ✔ Récupérer un utilisateur complet via email
-    // -------------------------------------------------------------------
+    //
+    //  Récupérer un utilisateur complet via email
     public User getUser(String email) {
         return dbHelper.getUser(email);
     }
 
-    // -------------------------------------------------------------------
-    // ✔ Vérifier si un email existe (utile pour ForgotPassword)
-    // -------------------------------------------------------------------
+    //  Vérifier si un email existe
+
     public boolean emailExists(String email) {
         return dbHelper.isEmailExists(email);
     }
 
-    // -------------------------------------------------------------------
-    // ✔ Changer mot de passe d’un utilisateur (Forgot Password)
-    // -------------------------------------------------------------------
+    // Changer mot de passe d’un utilisateur (Forgot Password)
     public boolean changePassword(String email, String newPassword) {
         return dbHelper.updatePassword(email, newPassword);
     }

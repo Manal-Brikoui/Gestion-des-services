@@ -9,7 +9,7 @@ import com.example.services_project.ui.login.LoginActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DURATION = 3000; // Durée de l'écran de splash (en ms)
+    private static final int SPLASH_DURATION = 3000; // Durée de l'écran de splash
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

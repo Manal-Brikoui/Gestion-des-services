@@ -38,7 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
         viewModel.init(this);
         sessionManager = new UserSessionManager(this);
 
-        // Gestion du bouton "Créer un compte"
+        // Gestion du bouton
         btnRegister.setOnClickListener(v -> {
             String firstName = edtFirstName.getText().toString().trim();
             String lastName = edtLastName.getText().toString().trim();
@@ -75,7 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        // Gestion du bouton "Déjà un compte ? Se connecter"
+        // Gestion du bouton
         btnBackToLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);

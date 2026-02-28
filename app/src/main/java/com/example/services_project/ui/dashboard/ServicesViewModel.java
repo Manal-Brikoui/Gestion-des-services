@@ -127,7 +127,7 @@ public class ServicesViewModel extends AndroidViewModel {
             return;
         }
 
-        //  Générer la date/heure actuelle
+        //  Générer la date ou heure actuelle
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String currentDateTime = sdf.format(new Date());
 
@@ -157,7 +157,7 @@ public class ServicesViewModel extends AndroidViewModel {
 
             List<Candidate> finalNotifications = new ArrayList<>();
 
-            //  Notifications REÇUES (Prestataire)
+            //  Notifications REÇUES (
             List<Candidate> receivedCandidates = repository.getAllCandidatesForUserServices(userId);
 
             for (Candidate candidate : receivedCandidates) {
@@ -166,7 +166,7 @@ public class ServicesViewModel extends AndroidViewModel {
                 finalNotifications.add(candidate);
             }
 
-            // Notifications de RÉPONSE (Candidat)
+            // Notifications de RÉPONSE
             List<Candidate> postedCandidates = repository.getCandidatesPostedByUser(userId);
 
             for (Candidate candidate : postedCandidates) {

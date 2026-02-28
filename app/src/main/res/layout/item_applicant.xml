@@ -17,7 +17,6 @@
         android:orientation="vertical"
         android:background="@android:color/white">
 
-        <!-- SECTION COMPACTE (TOUJOURS VISIBLE) -->
         <LinearLayout
             android:id="@+id/layoutCompact"
             android:layout_width="match_parent"
@@ -29,7 +28,6 @@
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
-            <!-- Cercle avec Initiale -->
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -47,7 +45,6 @@
                     android:layout_gravity="center" />
             </FrameLayout>
 
-            <!-- Nom complet -->
             <TextView
                 android:id="@+id/textApplicantName"
                 android:layout_width="0dp"
@@ -59,7 +56,6 @@
                 android:textStyle="bold"
                 android:layout_marginStart="16dp" />
 
-            <!-- Icône Flèche -->
             <ImageView
                 android:id="@+id/imgExpandArrow"
                 android:layout_width="24dp"
@@ -69,7 +65,6 @@
                 android:rotation="0" />
         </LinearLayout>
 
-        <!-- SECTION DÉTAILS (EXTENSIBLE) -->
         <LinearLayout
             android:id="@+id/layoutDetails"
             android:layout_width="match_parent"
@@ -80,14 +75,12 @@
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#E0E0E0"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Statut Badge -->
             <TextView
                 android:id="@+id/textApplicantStatus"
                 android:layout_width="wrap_content"

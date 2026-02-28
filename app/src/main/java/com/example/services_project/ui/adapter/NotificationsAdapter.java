@@ -70,7 +70,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
 
             if (candidate.getApplicantId() == currentUserId) {
-                // C'est une notification de RÉPONSE à la demande de l'utilisateur (CLIENT)
+                // C'est une notification de RÉPONSE à la demande de l'utilisateur
                 String statusText;
                 if ("ACCEPTED".equals(status)) {
                     statusText = "acceptée";
@@ -85,7 +85,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
             } else {
 
-                // C'est une notification de CANDIDATURE REÇUE (OWNER)
+                // C'est une notification de CANDIDATURE REÇUE
                 String fullName = candidate.getFirstName() + " " + candidate.getLastName();
 
                 titleToDisplay = fullName + " a postulé pour votre service " + serviceTitle;
@@ -93,7 +93,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
                 textServiceTitle.setText("Statut: " + status);
             }
 
-            //  Définir le message/titre personnalisé
+            //  Définir le message avec titre personnalisé
             textNotificationMessage.setText(titleToDisplay);
             String notificationDateTime = candidate.getApplicationDate(); // MODIFICATION CLÉ
 

@@ -13,7 +13,6 @@
         android:orientation="vertical"
         android:padding="25dp">
 
-        <!-- Titre -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,7 +28,6 @@
             android:layout_marginBottom="20dp"
             android:background="#1E88E5" />
 
-        <!-- Email -->
         <LinearLayout
             android:id="@+id/layoutEmail"
             android:layout_width="match_parent"
@@ -75,7 +73,6 @@
             android:layout_height="1dp"
             android:background="#EEEEEE" />
 
-        <!-- Téléphone -->
         <LinearLayout
             android:id="@+id/layoutPhone"
             android:layout_width="match_parent"
@@ -116,7 +113,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Bouton Fermer -->
         <Button
             android:id="@+id/btnCloseContact"
             android:layout_width="match_parent"

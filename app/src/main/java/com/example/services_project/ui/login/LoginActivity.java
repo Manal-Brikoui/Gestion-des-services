@@ -34,12 +34,12 @@ public class LoginActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
-        // Session + ViewModel
+        // Session et  ViewModel
         session = new UserSessionManager(this);
         viewModel = new LoginViewModel();
         viewModel.init(this);
 
-        // ⭐️ Vérifier si on revient de ForgotPasswordActivity
+        // Vérifier si on revient de ForgotPasswordActivity
         String emailFromReset = getIntent().getStringExtra("email_reset");
         if (emailFromReset != null && !emailFromReset.isEmpty()) {
             edtEmail.setText(emailFromReset);   // Pré-remplir email
@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(this, "Veuillez vous reconnecter", Toast.LENGTH_SHORT).show();
         }
 
-        // 🔹 Connexion
+        //  Connexion
         btnLogin.setOnClickListener(v -> {
             String email = edtEmail.getText().toString().trim();
             String password = edtPassword.getText().toString().trim();
@@ -73,12 +73,12 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         });
 
-        // 🔹 Créer un compte
+        // Créer un compte
         btnRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
         });
 
-        // 🔹 Mot de passe oublié
+        // Mot de passe oublié
         tvForgotPassword.setOnClickListener(v -> {
             String emailInput = edtEmail.getText().toString().trim();
 

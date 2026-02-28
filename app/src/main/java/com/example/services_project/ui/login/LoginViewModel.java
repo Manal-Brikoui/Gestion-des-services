@@ -15,7 +15,7 @@ public class LoginViewModel extends ViewModel {
         }
     }
 
-    // Connexion (email + password)
+    // Connexion
     public boolean login(String email, String password) {
         return repository.login(email, password);
     }

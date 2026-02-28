@@ -11,7 +11,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- En-tête avec gradient -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,7 +26,6 @@
                 android:orientation="vertical"
                 android:padding="30dp">
 
-                <!-- Photo de profil avec bordure -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="120dp"
                     android:layout_height="120dp"
@@ -38,7 +36,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <!-- Image de profil -->
                         <ImageView
                             android:id="@+id/ivProfileImage"
                             android:layout_width="match_parent"
@@ -46,7 +43,6 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_profile_placeholder" />
 
-                        <!-- Icône appareil photo -->
                         <ImageView
                             android:id="@+id/ivEditPhoto"
                             android:layout_width="36dp"
@@ -60,7 +56,6 @@
                     </FrameLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Nom complet -->
                 <TextView
                     android:id="@+id/tvUserFullName"
                     android:layout_width="wrap_content"
@@ -71,7 +66,6 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <!-- Email -->
                 <TextView
                     android:id="@+id/tvUserEmail"
                     android:layout_width="wrap_content"
@@ -83,7 +77,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Section Changer le mot de passe -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -97,13 +90,11 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Titre Section avec icône -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!-- Icône Sécurité -->
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -111,7 +102,6 @@
                         app:tint="#6A1B9A"
                         android:layout_marginEnd="10dp" />
 
-                    <!-- Texte Sécurité -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -126,9 +116,8 @@
                     android:layout_height="3dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="15dp"
-                    android:background="#1E88E5" />
+                    android:background="#4CAF50" />
 
-                <!-- Ancien mot de passe -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -144,7 +133,6 @@
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Nouveau mot de passe -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -160,7 +148,6 @@
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Confirmer mot de passe -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -176,7 +163,6 @@
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Bouton changer mot de passe -->
                 <Button
                     android:id="@+id/btnChangePassword"
                     android:layout_width="match_parent"
@@ -189,7 +175,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Section Support et Informations -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -204,7 +189,6 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Titre Section -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -220,7 +204,6 @@
                     android:layout_marginBottom="15dp"
                     android:background="#4CAF50" />
 
-                <!-- Aide et Support -->
                 <LinearLayout
                     android:id="@+id/layoutHelp"
                     android:layout_width="match_parent"
@@ -258,7 +241,6 @@
                     android:layout_height="1dp"
                     android:background="#EEEEEE" />
 
-                <!-- Contactez-nous -->
                 <LinearLayout
                     android:id="@+id/layoutContact"
                     android:layout_width="match_parent"
@@ -296,7 +278,6 @@
                     android:layout_height="1dp"
                     android:background="#EEEEEE" />
 
-                <!-- À propos -->
                 <LinearLayout
                     android:id="@+id/layoutAbout"
                     android:layout_width="match_parent"
@@ -331,7 +312,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Bouton Déconnexion -->
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"

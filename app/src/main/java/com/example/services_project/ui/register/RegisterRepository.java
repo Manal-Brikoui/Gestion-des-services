@@ -12,7 +12,7 @@ public class RegisterRepository {
         dbHelper = new DatabaseHelper(context);
     }
 
-    // ⚠️ Méthode pour enregistrer un User complet
+    // Méthode pour enregistrer un User complet
     public boolean insertUser(String firstName, String lastName, String email, String password) {
         return dbHelper.insertUser(firstName, lastName, email, password);
     }
@@ -33,7 +33,7 @@ public class RegisterRepository {
         return dbHelper.getUser(email) != null;
     }
 
-    // 🔹 Nouvelle méthode : changer le mot de passe d'un utilisateur
+    //  changer le mot de passe d'un utilisateur
     public boolean changePassword(String email, String newPassword) {
         return dbHelper.updatePassword(email, newPassword);
     }

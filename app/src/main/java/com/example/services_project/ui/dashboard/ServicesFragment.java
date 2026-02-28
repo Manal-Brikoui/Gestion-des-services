@@ -18,7 +18,6 @@ import com.example.services_project.model.Service;
 import com.example.services_project.ui.adapter.MyServicesAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ServicesFragment extends Fragment {
 
@@ -30,7 +29,7 @@ public class ServicesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
+                             ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_services, container, false);
@@ -77,8 +76,9 @@ public class ServicesFragment extends Fragment {
         AddFragment fragment = new AddFragment();
 
         Bundle args = new Bundle();
-        args.putBoolean("isEditMode", true); // LIGNE AJOUTÉE - ESSENTIELLE !
+        args.putBoolean("isEditMode", true);
         args.putInt("serviceId", service.getId());
+        args.putInt("userId", service.getUserId()); 
         args.putString("title", service.getTitle());
         args.putString("description", service.getDescription());
         args.putString("category", service.getCategory());

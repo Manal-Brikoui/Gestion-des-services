@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.login.LoginActivity">
 
-    <!-- Image de fond -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -13,13 +12,11 @@
         android:scaleType="centerCrop"
         android:contentDescription="Background"/>
 
-    <!-- Overlay semi-transparent pour améliorer la lisibilité -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#80000000"/>
 
-    <!-- Contenu scrollable -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -32,7 +29,6 @@
             android:padding="24dp"
             android:gravity="center_horizontal">
 
-            <!-- Logo -->
             <ImageView
                 android:id="@+id/logo"
                 android:layout_width="120dp"
@@ -43,7 +39,6 @@
                 android:layout_marginTop="-25dp"
                 android:layout_marginBottom="12dp"/>
 
-            <!-- Cadre transparent contenant tous les champs -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,7 +47,6 @@
                 android:padding="24dp"
                 android:elevation="8dp">
 
-                <!-- Description -->
                 <TextView
                     android:id="@+id/tvDescription"
                     android:layout_width="match_parent"
@@ -68,7 +62,6 @@
                     android:shadowDy="1"
                     android:shadowRadius="3"/>
 
-                <!-- Email -->
                 <EditText
                     android:id="@+id/edtEmail"
                     android:layout_width="match_parent"
@@ -81,7 +74,6 @@
                     android:padding="16dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Mot de passe -->
                 <EditText
                     android:id="@+id/edtPassword"
                     android:layout_width="match_parent"
@@ -94,7 +86,6 @@
                     android:padding="16dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Mot de passe oublié ? -->
                 <TextView
                     android:id="@+id/tvForgotPassword"
                     android:layout_width="wrap_content"
@@ -112,7 +103,6 @@
                     android:shadowDy="1"
                     android:shadowRadius="2"/>
 
-                <!-- Bouton Se connecter -->
                 <Button
                     android:id="@+id/btnLogin"
                     android:layout_width="match_parent"
@@ -126,7 +116,6 @@
                     android:elevation="4dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Bouton Créer un compte -->
                 <Button
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"

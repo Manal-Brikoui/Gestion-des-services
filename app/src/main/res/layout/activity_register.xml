@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.register.RegisterActivity">
 
-    <!-- Image de fond -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -13,13 +12,11 @@
         android:scaleType="centerCrop"
         android:contentDescription="Background"/>
 
-    <!-- Overlay semi-transparent pour améliorer la lisibilité -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#80000000"/>
 
-    <!-- Contenu scrollable -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -32,9 +29,7 @@
             android:padding="24dp"
             android:gravity="center_horizontal">
 
-            <!-- Logo -->
 
-            <!-- Cadre invisible contenant tous les champs -->
             <ImageView
                 android:id="@+id/imgLogoRegister"
                 android:layout_width="100dp"
@@ -52,7 +47,6 @@
                 android:padding="24dp"
                 android:elevation="8dp">
 
-                <!-- Titre -->
                 <TextView
                     android:id="@+id/tvRegisterTitle"
                     android:layout_width="wrap_content"
@@ -69,7 +63,6 @@
                     android:shadowDy="2"
                     android:shadowRadius="4"/>
 
-                <!-- Prénom -->
                 <EditText
                     android:id="@+id/edtFirstName"
                     android:layout_width="match_parent"
@@ -81,7 +74,6 @@
                     android:padding="16dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Nom -->
                 <EditText
                     android:id="@+id/edtLastName"
                     android:layout_width="match_parent"
@@ -93,7 +85,6 @@
                     android:padding="16dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Email -->
                 <EditText
                     android:id="@+id/edtEmail"
                     android:layout_width="match_parent"
@@ -106,7 +97,6 @@
                     android:padding="16dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Mot de passe -->
                 <EditText
                     android:id="@+id/edtPassword"
                     android:layout_width="match_parent"
@@ -119,7 +109,6 @@
                     android:padding="16dp"
                     android:layout_marginBottom="24dp"/>
 
-                <!-- Bouton d'inscription -->
                 <Button
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
@@ -133,7 +122,6 @@
                     android:elevation="4dp"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Bouton retour connexion -->
                 <Button
                     android:id="@+id/btnBackToLogin"
                     android:layout_width="match_parent"

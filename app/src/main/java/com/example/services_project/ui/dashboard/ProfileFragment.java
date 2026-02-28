@@ -68,7 +68,7 @@ public class ProfileFragment extends Fragment {
         btnChangePassword = view.findViewById(R.id.btnChangePassword);
         btnLogout = view.findViewById(R.id.btnLogout);
 
-        // Support & Informations
+        // Support  et Informations
         layoutHelp = view.findViewById(R.id.layoutHelp);
         layoutContact = view.findViewById(R.id.layoutContact);
         layoutAbout = view.findViewById(R.id.layoutAbout);
@@ -104,7 +104,7 @@ public class ProfileFragment extends Fragment {
         // Déconnexion
         btnLogout.setOnClickListener(v -> logout());
 
-        // Support & Informations - Clics
+        // Support et Informations - Clics
         layoutHelp.setOnClickListener(v -> showHelpDialog());
         layoutContact.setOnClickListener(v -> showContactDialog());
         layoutAbout.setOnClickListener(v -> showAboutDialog());

@@ -41,10 +41,8 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    //NOUVELLES MÉTHODES UTILITAIRES POUR L'AFFICHAGE DE LA MESSAGERIE
 
 
-     //Retourne le nom complet (Prénom Nom).
 
     public String getFullName() {
         return firstName + " " + lastName;

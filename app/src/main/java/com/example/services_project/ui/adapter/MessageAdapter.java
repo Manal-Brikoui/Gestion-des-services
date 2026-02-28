@@ -17,7 +17,7 @@ import java.util.List;
 
 
  //Adapter pour afficher la liste des objets Message dans un RecyclerView,
- // gérant deux types de vues : envoyé (droite) et reçu (gauche).
+
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
@@ -69,7 +69,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         // Afficher le timestamp
         holder.textDate.setText(message.getTimestamp());
 
-        //  Log de débogage ESSENTIEL
+        //  Log de débogage
         int viewType = getItemViewType(position);
         String type = (viewType == MSG_TYPE_SENT ? "SENT" : "RECEIVED");
         Log.d(TAG, "Message ID: " + message.getId() +

@@ -55,7 +55,6 @@
             android:text="Service description..."
             android:textSize="14sp" />
 
-        <!-- 🔥 ICÔNES MODIFIER + SUPPRIMER CÔTE À CÔTÉ -->
         <LinearLayout
             android:id="@+id/actionButtons"
             android:layout_width="wrap_content"

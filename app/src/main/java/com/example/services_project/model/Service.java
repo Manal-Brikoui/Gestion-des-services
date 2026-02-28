@@ -1,6 +1,5 @@
 package com.example.services_project.model;
 import java.io.Serializable;
-//Serializable pouvoir envoyer une activity a une autre via intent
 public class Service implements Serializable {
 
     private int id;
